@@ -4,6 +4,8 @@ Web tool for explained credit scoring for profiles with little or no banking his
 
 **Project reference brief: [docs/project-brief.md](docs/project-brief.md)** (data, models, ethics and split choices, plus the decision log in section 12).
 
+**Experiment log: [docs/experiments.md](docs/experiments.md)** (pre-registered measurements, decision rules fixed in advance, then results).
+
 **Convention:** All code, comments and documentation are written in English.
 
 ## Structure
@@ -11,7 +13,8 @@ Web tool for explained credit scoring for profiles with little or no banking his
 ```
 noria/
 ├── docs/
-│   └── project-brief.md  # Reference project brief + decision log
+│   ├── project-brief.md  # Reference project brief + decision log
+│   └── experiments.md    # Pre-registered experiment log
 ├── data/
 │   ├── raw/              # Raw data (never modified, not versioned)
 │   └── processed/        # Prepared data (not versioned)

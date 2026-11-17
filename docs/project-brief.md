@@ -79,34 +79,30 @@ Three feature sets, defined in `src/config.py`:
 
 **Training:** class weighting, 5-fold stratified cross-validation, hyperparameter tuning, early stopping.
 
-**Calibration:** isotonic or Platt, so that a displayed probability of 20% corresponds to about 20% actual defaults.
+**Calibration:** isotonic or Platt, so that a displayed probability of 20% corresponds to about 20% actual defaults (choice: experiment E8 in [experiments.md](experiments.md)).
 
 **Explainability:** SHAP. The 5 to 10 factors that weighed on each file, translated into plain French for the advisor, and into simple sentences for the client.
 
 **Client model constraint:** each variable must be computable from the form inputs alone.
 - **Income unit (assumption deduced from the data):** the dataset does not state the unit of `AMT_INCOME_TOTAL` and `AMT_ANNUITY`. They are read as **monthly** amounts in the same unit, the only coherent reading: in 91.1% of rows the annuity is larger than income ÷ 12, so an annual income is ruled out, while the monthly reading gives a realistic median debt-to-income ratio (17.2%) and a `CREDIT_TERM` in months (median 20.7). The form's monthly income is used as is, with no conversion.
 - **Annuity and duration:** in the dataset the annuity includes interest. For the public client form only, the API computes the monthly annuity from the amount and the duration with the standard amortization formula and an assumed annual interest rate (10% by default, constant `ASSUMED_ANNUAL_INTEREST_RATE` in `src/config.py`), then computes the ratios exactly as in the dataset (credit ÷ annuity, annuity ÷ income, credit ÷ income).
-- **Sensitivity analysis (session 3):** the client model's results will be compared for assumed rates of 5%, 10% and 15%.
+- **Sensitivity to the assumed rate:** experiment E7 in [experiments.md](experiments.md).
 
 ---
 
 ## 6. Evaluation
 
 - **Main metric: AUC-ROC** (suited to imbalance, unlike accuracy), complemented by AUC-PR, recall on defaults and the confusion matrix.
-- **Calibration curve.**
-- **Test set used only once**, at the end.
+- **Test set used only once**, at the end. Selection metrics are computed on the validation set.
 - **Gap between bank with / without history / client measured and displayed: this is the original contribution of the project.** It shows what the lack of history and unverified information cost in accuracy.
-- **Region ratings (session 3):** AUC of the bank model with and without `REGION_FEATURES` (`REGION_POPULATION_RELATIVE`, `REGION_RATING_CLIENT`, `REGION_RATING_CLIENT_W_CITY`), to measure what leaving them out costs.
-- **Performance on the "no history" subgroup** (test clients absent from `bureau.csv`), compared with overall performance.
-- **Performance by employment type and by age** (`Working`, `Commercial associate` as the profile closest to freelancers, 20-35 years old), to check that the model remains usable for the target population.
-- **Decision rule for the client model, set before seeing the results** (AUC on the validation set): ≥ 0.65 → kept; between 0.60 and 0.65 → kept with a stronger caution message; < 0.60 → dropped, and the decision is documented.
+- **Every planned measurement, with its decision rule fixed in advance, is pre-registered in [experiments.md](experiments.md)** (E1 to E9: baseline, cost of the history, client model viability, region features, real no-history profiles, target population, interest-rate sensitivity, calibration, fairness audit), then completed with its result.
 
 ---
 
 ## 7. Rigor and ethics
 
 - **Gender excluded** from all model variables, kept only for the fairness audit (raw gap observed in the EDA: F 7.0% vs M 10.1% defaults).
-- **Fairness audit** (Fairlearn) by sex and age group: acceptance rates and error rates compared.
+- **Fairness audit** (Fairlearn) by sex and age group: acceptance rates and error rates compared (experiment E9 in [experiments.md](experiments.md)).
 - **Hidden history excluded** from the model without history: `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, the social-circle counts `*_CNT_SOCIAL_CIRCLE` (history of the applicant's surroundings), and the very fact that one of these values is missing (also linked to default).
 - **Region ratings left out by default** (`REGION_FEATURES` in `src/config.py`, separate from the `BANK_*` sets): (1) these ratings are specific to Home Credit and their method is unknown, so a rating created for the Algerian wilayas would not share the same scale; (2) no data would make it possible to validate a rating per wilaya; (3) rating a client according to their region raises a fairness issue: they would be penalized for where they live. The address-consistency flags (`REG_*` / `LIVE_*`) stay in the bank sets, since they can be filled in for any client.
 - Data leakage control, reproducible pipeline, versioned models.
@@ -210,3 +206,4 @@ The ratios are computed by the API exactly as in the dataset: total financed amo
 | 17/11/2026 | Advisor form: the advisor enters the **real monthly annuity** of the bank's offer; the assumed-rate amortization formula is used for the public client form only | The advisor works on verified data: the real annuity is more faithful than an estimate |
 | 17/11/2026 | Advisor form: two distinct fields, "Goods / project price" and "Total financed amount (including fees and insurance)", with a help text | In the dataset the credit is always ≥ the goods price (fees, insurance): entering the price twice would force `GOODS_CREDIT_RATIO` to 1 |
 | 17/11/2026 | Region ratings (`REGION_POPULATION_RELATIVE`, `REGION_RATING_CLIENT`, `REGION_RATING_CLIENT_W_CITY`) moved to a separate `REGION_FEATURES` group, left out of the `BANK_*` sets by default; `REG_*` / `LIVE_*` flags kept | Home Credit-specific ratings with an unknown method (a wilaya rating would not share the scale), no data to validate a rating per wilaya, and a fairness issue (penalized for where one lives); AUC with and without the group measured in session 3 |
+| 18/11/2026 | Pre-registered experiment log created: [experiments.md](experiments.md) (E1 to E9); details of the planned measurements moved there from section 6 | Each measurement and its decision rule are written before the result is seen; a rule changed afterwards must be logged here with its reason |
