@@ -57,6 +57,7 @@ def add_features(df):
     df["CREDIT_INCOME_RATIO"] = safe_divide(df["AMT_CREDIT"], df["AMT_INCOME_TOTAL"])
     df["ANNUITY_INCOME_RATIO"] = safe_divide(df["AMT_ANNUITY"], df["AMT_INCOME_TOTAL"])
     df["CREDIT_TERM"] = safe_divide(df["AMT_CREDIT"], df["AMT_ANNUITY"])
+    df["GOODS_CREDIT_RATIO"] = safe_divide(df["AMT_GOODS_PRICE"], df["AMT_CREDIT"])
     df["INCOME_PER_PERSON"] = safe_divide(df["AMT_INCOME_TOTAL"], df["CNT_FAM_MEMBERS"])
     df["EMPLOYMENT_AGE_RATIO"] = safe_divide(df["EMPLOYMENT_YEARS"], df["AGE_YEARS"])
     return df

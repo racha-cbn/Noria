@@ -13,6 +13,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import FunctionTransformer, OneHotEncoder, StandardScaler
 from sklearn.utils.validation import check_is_fitted
 
+from src import config
+
 
 class PercentileCapper(OneToOneFeatureMixin, TransformerMixin, BaseEstimator):
     """Clip each column to its [lower, upper] percentiles learned at fit time (NaN ignored)."""
@@ -64,11 +66,15 @@ def build_preprocessor(X_train, features, scale=False, cap_percentiles=(1.0, 99.
     - continuous numeric: percentile capping -> median imputation -> StandardScaler (if scale)
     - binary flags: median imputation (-> StandardScaler if scale)
     - categorical: most-frequent imputation -> OneHotEncoder(handle_unknown="ignore")
+    - categorical in config.MISSING_CATEGORY_COLUMNS: missing values become their own
+      category (config.MISSING_LABEL) -> OneHotEncoder(handle_unknown="ignore")
 
     scale=True is meant for the logistic regression only (trees do not need it).
     The returned object is NOT fitted: call .fit(X_train[features]) yourself.
     """
     categorical, binary, continuous = split_column_types(X_train, features)
+    missing_category = [c for c in categorical if c in config.MISSING_CATEGORY_COLUMNS]
+    categorical = [c for c in categorical if c not in missing_category]
     low, high = cap_percentiles
 
     continuous_steps = [
@@ -93,6 +99,13 @@ def build_preprocessor(X_train, features, scale=False, cap_percentiles=(1.0, 99.
         transformers.append(("binary", Pipeline(binary_steps), binary))
     if categorical:
         transformers.append(("categorical", Pipeline(categorical_steps), categorical))
+    if missing_category:
+        missing_steps = [
+            ("to_object", FunctionTransformer(_to_object, feature_names_out="one-to-one")),
+            ("impute", SimpleImputer(strategy="constant", fill_value=config.MISSING_LABEL)),
+            ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+        ]
+        transformers.append(("categorical_missing", Pipeline(missing_steps), missing_category))
 
     preprocessor = ColumnTransformer(transformers, remainder="drop", verbose_feature_names_out=False)
     return preprocessor.set_output(transform="pandas")

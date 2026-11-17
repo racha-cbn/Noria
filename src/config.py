@@ -32,6 +32,23 @@ HOUSING_EXTRA_COLUMNS = [
 ]
 HOUSING_SUFFIXES = ("_AVG", "_MODE", "_MEDI")
 
+# Categorical columns whose missing values get their own category instead of the most frequent one
+# (OCCUPATION_TYPE is missing for every pensioner: "most frequent" would turn them all into "Laborers").
+MISSING_CATEGORY_COLUMNS = ["OCCUPATION_TYPE"]
+MISSING_LABEL = "Missing"
+
+# --- Units (assumption deduced from the data, the dataset does not state it) -
+# AMT_INCOME_TOTAL and AMT_ANNUITY are read as MONTHLY amounts in the same unit:
+# it is the only reading where the median annuity / income (0.17) is a realistic
+# debt-to-income ratio and CREDIT_TERM (median ~20.7) is a number of months.
+# The form's monthly income is therefore used as is (no x12 conversion).
+
+# Assumed annual interest rate used by the API to turn (amount, duration) into a
+# monthly annuity with the standard amortization formula, so that the client ratios
+# are computed exactly as in the dataset (where the annuity includes interest).
+# A sensitivity analysis at 5%, 10% and 15% is planned for session 3.
+ASSUMED_ANNUAL_INTEREST_RATE = 0.10
+
 # DAYS_* columns converted to positive years (new name: source column)
 YEARS_FROM_DAYS = {
     "AGE_YEARS": "DAYS_BIRTH",
@@ -54,23 +71,25 @@ CLIENT_FEATURES = [
     "EMPLOYMENT_YEARS",      # form: employment length (missing when IS_PENSIONER = 1)
     "IS_PENSIONER",          # form: employment type "retired" (see CLIENT_FORM_FORMULAS)
     "CREDIT_INCOME_RATIO",   # form: amount / income
-    "CREDIT_TERM",           # form: amount / (amount / duration) = duration
-    "ANNUITY_INCOME_RATIO",  # form: (amount / duration) / income
+    "CREDIT_TERM",           # form: amount / annuity (annuity from the amortization formula)
+    "ANNUITY_INCOME_RATIO",  # form: annuity / monthly income
 ]
 # No raw amounts in the client model: ratios only, to stay currency-independent.
 
 # How each client feature is computed from the form inputs (documentation for the API).
-# income = income in the dataset's unit (see the income-unit note in project-brief.md).
+# income = monthly income from the form (same unit as AMT_INCOME_TOTAL, see "Units" above).
+# annuity = amount * r / (1 - (1 + r) ** -duration), with r = ASSUMED_ANNUAL_INTEREST_RATE / 12.
+# Employment type "unemployed": no score is computed (too few examples, see project-brief.md).
 CLIENT_FORM_FORMULAS = {
     "AGE_YEARS": "age",
     "NAME_FAMILY_STATUS": "family_status",
     "CNT_CHILDREN": "children",
     "NAME_INCOME_TYPE": "employment_type mapped to a dataset category",
     "EMPLOYMENT_YEARS": "employment_length (NaN when IS_PENSIONER = 1)",
-    "IS_PENSIONER": "1 if employment_type has no current job, else 0",
+    "IS_PENSIONER": "1 if employment_type is retired, else 0",
     "CREDIT_INCOME_RATIO": "amount / income",
-    "CREDIT_TERM": "amount / annuity = duration, with annuity = amount / duration",
-    "ANNUITY_INCOME_RATIO": "(amount / duration) / income",
+    "CREDIT_TERM": "amount / annuity (amortization formula, assumed interest rate)",
+    "ANNUITY_INCOME_RATIO": "annuity / income",
 }
 
 # Bank model without history: every relevant variable except the hidden history.
@@ -85,21 +104,14 @@ _BANK_CATEGORICAL = [
     "FLAG_OWN_CAR",
     "FLAG_OWN_REALTY",
 ]
+# Bank models: ratios and variables without a monetary unit only (no raw amounts).
 _BANK_NUMERIC = [
     "CNT_CHILDREN",
     "CNT_FAM_MEMBERS",
-    "AMT_INCOME_TOTAL",
-    "AMT_CREDIT",
-    "AMT_ANNUITY",
-    "AMT_GOODS_PRICE",
     "REGION_POPULATION_RELATIVE",
     "REGION_RATING_CLIENT",
     "REGION_RATING_CLIENT_W_CITY",
     "OWN_CAR_AGE",
-    "OBS_30_CNT_SOCIAL_CIRCLE",
-    "DEF_30_CNT_SOCIAL_CIRCLE",
-    "OBS_60_CNT_SOCIAL_CIRCLE",
-    "DEF_60_CNT_SOCIAL_CIRCLE",
 ]
 _CREATED = [
     "AGE_YEARS",
@@ -111,7 +123,7 @@ _CREATED = [
     "CREDIT_INCOME_RATIO",
     "ANNUITY_INCOME_RATIO",
     "CREDIT_TERM",
-    "INCOME_PER_PERSON",
+    "GOODS_CREDIT_RATIO",
     "EMPLOYMENT_AGE_RATIO",
 ]
 _CONTACT_AND_ADDRESS_FLAGS = [
@@ -152,8 +164,14 @@ EXCLUDED_COLUMNS = {
     "HOUR_APPR_PROCESS_START": "describes when the file was entered, not the applicant",
     "FLAG_DOCUMENT_7": "constant (all 0) among cash loans",
     "FLAG_DOCUMENT_10": "constant (all 0) among cash loans",
-    "EXT_SOURCE_1/2/3": "external credit scores are a form of credit history",
-    "AMT_REQ_CREDIT_BUREAU_*": "inquiries to the credit bureau are credit history",
+    "AMT_INCOME_TOTAL": "raw monetary amount (currency-dependent), used through ratios only",
+    "AMT_CREDIT": "raw monetary amount (currency-dependent), used through ratios only",
+    "AMT_ANNUITY": "raw monetary amount (currency-dependent), used through ratios only",
+    "AMT_GOODS_PRICE": "raw monetary amount (currency-dependent), used through GOODS_CREDIT_RATIO",
+    "INCOME_PER_PERSON": "monetary amount (currency-dependent)",
+    "EXT_SOURCE_1/2/3": "external credit scores are a form of credit history (with-history model only)",
+    "AMT_REQ_CREDIT_BUREAU_*": "inquiries to the credit bureau are credit history (with-history model only)",
+    "*_CNT_SOCIAL_CIRCLE": "defaults observed in the social circle are a form of history (with-history model only)",
     "missing-value indicators of the above": "missingness of a history score is itself linked to default",
     "housing columns (_AVG/_MODE/_MEDI + 4 *_MODE)": "dropped during cleaning (empty on ~47% of rows)",
 }
@@ -168,7 +186,15 @@ HISTORY_FEATURES = [
     "AMT_REQ_CREDIT_BUREAU_MON",
     "AMT_REQ_CREDIT_BUREAU_QRT",
     "AMT_REQ_CREDIT_BUREAU_YEAR",
+    # Social circle: observations and defaults among the applicant's surroundings (history of the circle)
+    "OBS_30_CNT_SOCIAL_CIRCLE",
+    "DEF_30_CNT_SOCIAL_CIRCLE",
+    "OBS_60_CNT_SOCIAL_CIRCLE",
+    "DEF_60_CNT_SOCIAL_CIRCLE",
 ]
+
+# Raw monetary columns: must never appear in a feature set (currency independence).
+MONETARY_COLUMNS = ["AMT_INCOME_TOTAL", "AMT_CREDIT", "AMT_ANNUITY", "AMT_GOODS_PRICE", "INCOME_PER_PERSON"]
 
 # Bank model with history: reference model, to measure what the history adds.
 BANK_WITH_HISTORY_FEATURES = BANK_NO_HISTORY_FEATURES + HISTORY_FEATURES

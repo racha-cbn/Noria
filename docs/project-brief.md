@@ -55,11 +55,11 @@ The tool recommends, the human decides: **no decision is automatic.**
 |---|---|
 | **Filtering** | Cash loans only; removal of rows with `CODE_GENDER = XNA` (4) and `NAME_FAMILY_STATUS = Unknown` (2), all of which are revolving loans (0 left after the cash-loans filter). Result: 278,232 rows, 8.35% defaults |
 | **Cleaning** | `DAYS_EMPLOYED = 365243` (55,374 rows, pensioners and unemployed) → `IS_PENSIONER` flag, then value set to missing; removal of the normalized housing columns (~47 columns); rare categories (< 0.1% of rows) grouped into "Other" |
-| **Created variables** | Age (years), employment length (years), the other `DAYS_*` in years (registration, ID publication, last phone change), credit / income, annuity / income (debt-to-income ratio), duration ≈ credit ÷ annuity, income per person, employment length / age |
+| **Created variables** | Age (years), employment length (years), the other `DAYS_*` in years (registration, ID publication, last phone change), credit / income, annuity / income (debt-to-income ratio), duration ≈ credit ÷ annuity, goods price / credit, income per person (created but not used: monetary amount), employment length / age |
 | **Frozen split** | Train 70% · validation 15% · test 15%, stratified on `TARGET`, `random_state = 42`, `SK_ID_CURR` kept |
-| **Pipeline (fit on the train set only)** | Imputation (median / most frequent category), capping of extremes (1st–99th percentile, continuous variables only), one-hot encoding (unknown categories ignored), scaling for the logistic regression |
+| **Pipeline (fit on the train set only)** | Imputation (median / most frequent category; a separate `Missing` category for `OCCUPATION_TYPE`), capping of extremes (1st–99th percentile, continuous variables only), one-hot encoding (unknown categories ignored), scaling for the logistic regression |
 
-**Why ratios?** They make the model less dependent on the currency and the standard of living of the country of origin.
+**Why ratios?** They make the model less dependent on the currency and the standard of living of the country of origin. This applies to all three models: no raw monetary amount (`AMT_*`, income per person) is used as a feature, only ratios and variables without a monetary unit.
 
 **Anti-leakage rule:** everything learned from the data (medians, percentiles, encoding) is learned on the train set only, in a reproducible scikit-learn pipeline.
 
@@ -72,7 +72,7 @@ Three feature sets, defined in `src/config.py`:
 | | **Client (public)** | **Bank without history** | **Bank with history** |
 |---|---|---|---|
 | **Role** | Quick estimate on declared, unverified data | Accurate score on verified data, without history | Reference: measure what the history adds |
-| **Variables** | Age, family status, children, employment type, employment length, pensioner, credit / income, duration, annuity / income | All relevant variables, **except** `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*` and their missing-value indicators | Bank without history + `EXT_SOURCE_*` + `AMT_REQ_CREDIT_BUREAU_*` |
+| **Variables** | Age, family status, children, employment type, employment length, pensioner, credit / income, duration, annuity / income | All relevant variables (ratios and variables without a monetary unit, including goods price / credit), **except** `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, `*_CNT_SOCIAL_CIRCLE` and their missing-value indicators | Bank without history + `EXT_SOURCE_*` + `AMT_REQ_CREDIT_BUREAU_*` + `*_CNT_SOCIAL_CIRCLE` |
 | **Output** | Category favorable / to strengthen / fragile, strengths and points to strengthen | Calibrated probability of default, risk class low / medium / high, recommendation accept / with conditions / refuse | Used for the comparison |
 
 **Algorithms:** LightGBM (main model), compared with a baseline logistic regression that must be beaten. Bonus: XGBoost and CatBoost for a comparison table.
@@ -83,7 +83,10 @@ Three feature sets, defined in `src/config.py`:
 
 **Explainability:** SHAP. The 5 to 10 factors that weighed on each file, translated into plain French for the advisor, and into simple sentences for the client.
 
-**Client model constraint:** each variable must be computable from the form inputs alone (the annuity equals amount ÷ duration). The dataset gives an **annual** income, the form asks for a **monthly** income: ×12 conversion in the API. **To be confirmed:** in 91.1% of rows the annuity is larger than income ÷ 12, which contradicts "annual income + monthly annuity" (session 2, notebook 02, section 5.1).
+**Client model constraint:** each variable must be computable from the form inputs alone.
+- **Income unit (assumption deduced from the data):** the dataset does not state the unit of `AMT_INCOME_TOTAL` and `AMT_ANNUITY`. They are read as **monthly** amounts in the same unit, the only coherent reading: in 91.1% of rows the annuity is larger than income ÷ 12, so an annual income is ruled out, while the monthly reading gives a realistic median debt-to-income ratio (17.2%) and a `CREDIT_TERM` in months (median 20.7). The form's monthly income is used as is, with no conversion.
+- **Annuity and duration:** in the dataset the annuity includes interest. The API computes the monthly annuity from the amount and the duration with the standard amortization formula and an assumed annual interest rate (10% by default, constant `ASSUMED_ANNUAL_INTEREST_RATE` in `src/config.py`), then computes the ratios exactly as in the dataset (credit ÷ annuity, annuity ÷ income, credit ÷ income).
+- **Sensitivity analysis (session 3):** the client model's results will be compared for assumed rates of 5%, 10% and 15%.
 
 ---
 
@@ -103,7 +106,7 @@ Three feature sets, defined in `src/config.py`:
 
 - **Gender excluded** from all model variables, kept only for the fairness audit (raw gap observed in the EDA: F 7.0% vs M 10.1% defaults).
 - **Fairness audit** (Fairlearn) by sex and age group: acceptance rates and error rates compared.
-- **Hidden history excluded** from the model without history: `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, and the very fact that one of these values is missing (also linked to default).
+- **Hidden history excluded** from the model without history: `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, the social-circle counts `*_CNT_SOCIAL_CIRCLE` (history of the applicant's surroundings), and the very fact that one of these values is missing (also linked to default).
 - Data leakage control, reproducible pipeline, versioned models.
 
 ---
@@ -129,6 +132,8 @@ Three feature sets, defined in `src/config.py`:
 Removed compared with the initial version: **personal contribution** and **purpose of the credit** (absent from the dataset, so unusable by the model).
 
 Mapping to the dataset: "freelancer" and "self-employed" are mapped to the closest category (`Commercial associate`). This is an approximation, documented in the limitations.
+
+**"Unemployed" profile:** if the client chooses "unemployed", Noria displays no score, only a message explaining that this profile cannot be estimated reliably (too few examples in the data: 15 unemployed applicants among the cash loans).
 
 ---
 
@@ -175,3 +180,9 @@ Mapping to the dataset: "freelancer" and "self-employed" are mapped to the close
 | 17/11/2026 | `WEEKDAY_APPR_PROCESS_START` and `HOUR_APPR_PROCESS_START` excluded from the bank models | They describe when the file was entered, not the applicant |
 | 17/11/2026 | `FLAG_DOCUMENT_7` and `FLAG_DOCUMENT_10` excluded | Constant (all 0) among cash loans |
 | 17/11/2026 | Rare-category threshold set at 0.1% of rows, computed on the prepared data before the split | Uses category frequencies only (no target), as planned in the preparation step |
+| 17/11/2026 | `AMT_INCOME_TOTAL` and `AMT_ANNUITY` read as **monthly** amounts in the same unit; ×12 conversion removed | The dataset does not state the unit; it is the only coherent reading (annuity > income ÷ 12 in 91.1% of rows, median debt-to-income 17.2%, `CREDIT_TERM` in months) |
+| 17/11/2026 | Client annuity computed with the amortization formula and an assumed annual rate of 10% (`ASSUMED_ANNUAL_INTEREST_RATE`) | The dataset annuity includes interest: ratios must be computed the same way; sensitivity at 5% / 10% / 15% in session 3 |
+| 17/11/2026 | "Unemployed" client profile: no score, an explanatory message instead | Too few examples (15 among cash loans) for a reliable estimate; `IS_PENSIONER` kept as is |
+| 17/11/2026 | `OCCUPATION_TYPE` missing values imputed with a `Missing` category | Missing for every pensioner (31.9% of rows): "most frequent" would turn them all into "Laborers" |
+| 17/11/2026 | Raw amounts removed from the bank models (`AMT_INCOME_TOTAL`, `AMT_CREDIT`, `AMT_ANNUITY`, `AMT_GOODS_PRICE`, `INCOME_PER_PERSON`); `GOODS_CREDIT_RATIO` added | Only ratios and unit-free variables, so the model does not depend on the currency (the advisor enters amounts in DA) |
+| 17/11/2026 | `*_CNT_SOCIAL_CIRCLE` (4 columns) moved to the bank model with history only | Defaults observed in the applicant's surroundings are a form of history |
