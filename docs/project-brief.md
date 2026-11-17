@@ -2,7 +2,7 @@
 
 > **Assessing and explaining the credit risk of profiles with no banking history.**
 > Web + AI project · Bachelor's degree in computer science (SALEAM-IA), NIT · Racha CHABANE · Due end of December 2026
-> Last updated: 17 November 2026 (after the EDA, session 1)
+> Last updated: 17 November 2026 (after the data preparation, session 2)
 
 ---
 
@@ -53,11 +53,11 @@ The tool recommends, the human decides: **no decision is automatic.**
 
 | Step | Content |
 |---|---|
-| **Filtering** | Cash loans only; removal of rows with `CODE_GENDER = XNA` (4) and `NAME_FAMILY_STATUS = Unknown` (2) |
-| **Cleaning** | `DAYS_EMPLOYED = 365243` (55,374 rows, pensioners and unemployed) → `IS_PENSIONER` flag, then value set to missing; removal of the normalized housing columns (~47 columns); rare categories grouped into "Other" |
-| **Created variables** | Age (years), employment length (years), credit / income, annuity / income (debt-to-income ratio), duration ≈ credit ÷ annuity, income per person, employment length / age |
+| **Filtering** | Cash loans only; removal of rows with `CODE_GENDER = XNA` (4) and `NAME_FAMILY_STATUS = Unknown` (2), all of which are revolving loans (0 left after the cash-loans filter). Result: 278,232 rows, 8.35% defaults |
+| **Cleaning** | `DAYS_EMPLOYED = 365243` (55,374 rows, pensioners and unemployed) → `IS_PENSIONER` flag, then value set to missing; removal of the normalized housing columns (~47 columns); rare categories (< 0.1% of rows) grouped into "Other" |
+| **Created variables** | Age (years), employment length (years), the other `DAYS_*` in years (registration, ID publication, last phone change), credit / income, annuity / income (debt-to-income ratio), duration ≈ credit ÷ annuity, income per person, employment length / age |
 | **Frozen split** | Train 70% · validation 15% · test 15%, stratified on `TARGET`, `random_state = 42`, `SK_ID_CURR` kept |
-| **Pipeline (fit on the train set only)** | Imputation (median / most frequent category), capping of extremes (1st–99th percentile), one-hot encoding (unknown categories ignored), scaling for the logistic regression |
+| **Pipeline (fit on the train set only)** | Imputation (median / most frequent category), capping of extremes (1st–99th percentile, continuous variables only), one-hot encoding (unknown categories ignored), scaling for the logistic regression |
 
 **Why ratios?** They make the model less dependent on the currency and the standard of living of the country of origin.
 
@@ -83,7 +83,7 @@ Three feature sets, defined in `src/config.py`:
 
 **Explainability:** SHAP. The 5 to 10 factors that weighed on each file, translated into plain French for the advisor, and into simple sentences for the client.
 
-**Client model constraint:** each variable must be computable from the form inputs alone (the annuity equals amount ÷ duration). The dataset gives an **annual** income, the form asks for a **monthly** income: ×12 conversion in the API.
+**Client model constraint:** each variable must be computable from the form inputs alone (the annuity equals amount ÷ duration). The dataset gives an **annual** income, the form asks for a **monthly** income: ×12 conversion in the API. **To be confirmed:** in 91.1% of rows the annuity is larger than income ÷ 12, which contradicts "annual income + monthly annuity" (session 2, notebook 02, section 5.1).
 
 ---
 
@@ -170,3 +170,8 @@ Mapping to the dataset: "freelancer" and "self-employed" are mapped to the close
 | 17/11/2026 | Client model **kept until measured** | Dropping it would be decided on figures (AUC rule, section 6), not on intuition |
 | 17/11/2026 | No retraining on a freelancer dataset | No reliable public dataset identified (many are synthetic); performance by employment type is measured instead |
 | 17/11/2026 | Follow-up as a final-year project (PFE) dropped | Local data (ANADE, ANGEM, microfinance) very hard to obtain; reframed as a future perspective |
+| 17/11/2026 | Capping (1st–99th percentile) applied to **continuous variables only**, not to 0/1 flags | On a rare flag both percentiles are 0: capping would erase it |
+| 17/11/2026 | Raw `DAYS_*` replaced by positive years (`AGE_YEARS`, `EMPLOYMENT_YEARS`, `REGISTRATION_YEARS`, `ID_PUBLISH_YEARS`, `PHONE_CHANGE_YEARS`) | Same information, readable units; keeping both would duplicate features |
+| 17/11/2026 | `WEEKDAY_APPR_PROCESS_START` and `HOUR_APPR_PROCESS_START` excluded from the bank models | They describe when the file was entered, not the applicant |
+| 17/11/2026 | `FLAG_DOCUMENT_7` and `FLAG_DOCUMENT_10` excluded | Constant (all 0) among cash loans |
+| 17/11/2026 | Rare-category threshold set at 0.1% of rows, computed on the prepared data before the split | Uses category frequencies only (no target), as planned in the preparation step |
