@@ -72,7 +72,7 @@ Three feature sets, defined in `src/config.py`:
 | | **Client (public)** | **Bank without history** | **Bank with history** |
 |---|---|---|---|
 | **Role** | Quick estimate on declared, unverified data | Accurate score on verified data, without history | Reference: measure what the history adds |
-| **Variables** | Age, family status, children, employment type, employment length, pensioner, credit / income, duration, annuity / income | All relevant variables (ratios and variables without a monetary unit, including goods price / credit), **except** `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, `*_CNT_SOCIAL_CIRCLE` and their missing-value indicators | Bank without history + `EXT_SOURCE_*` + `AMT_REQ_CREDIT_BUREAU_*` + `*_CNT_SOCIAL_CIRCLE` |
+| **Variables** | Age, family status, children, employment type, employment length, pensioner, credit / income, duration, annuity / income | All relevant variables (ratios and variables without a monetary unit, including goods price / credit), **except** `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, `*_CNT_SOCIAL_CIRCLE` and their missing-value indicators. The Home Credit region ratings (`REGION_FEATURES`) are left out by default (section 7) | Bank without history + `EXT_SOURCE_*` + `AMT_REQ_CREDIT_BUREAU_*` + `*_CNT_SOCIAL_CIRCLE` |
 | **Output** | Category favorable / to strengthen / fragile, strengths and points to strengthen | Calibrated probability of default, risk class low / medium / high, recommendation accept / with conditions / refuse | Used for the comparison |
 
 **Algorithms:** LightGBM (main model), compared with a baseline logistic regression that must be beaten. Bonus: XGBoost and CatBoost for a comparison table.
@@ -96,6 +96,7 @@ Three feature sets, defined in `src/config.py`:
 - **Calibration curve.**
 - **Test set used only once**, at the end.
 - **Gap between bank with / without history / client measured and displayed: this is the original contribution of the project.** It shows what the lack of history and unverified information cost in accuracy.
+- **Region ratings (session 3):** AUC of the bank model with and without `REGION_FEATURES` (`REGION_POPULATION_RELATIVE`, `REGION_RATING_CLIENT`, `REGION_RATING_CLIENT_W_CITY`), to measure what leaving them out costs.
 - **Performance on the "no history" subgroup** (test clients absent from `bureau.csv`), compared with overall performance.
 - **Performance by employment type and by age** (`Working`, `Commercial associate` as the profile closest to freelancers, 20-35 years old), to check that the model remains usable for the target population.
 - **Decision rule for the client model, set before seeing the results** (AUC on the validation set): ≥ 0.65 → kept; between 0.60 and 0.65 → kept with a stronger caution message; < 0.60 → dropped, and the decision is documented.
@@ -107,6 +108,7 @@ Three feature sets, defined in `src/config.py`:
 - **Gender excluded** from all model variables, kept only for the fairness audit (raw gap observed in the EDA: F 7.0% vs M 10.1% defaults).
 - **Fairness audit** (Fairlearn) by sex and age group: acceptance rates and error rates compared.
 - **Hidden history excluded** from the model without history: `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, the social-circle counts `*_CNT_SOCIAL_CIRCLE` (history of the applicant's surroundings), and the very fact that one of these values is missing (also linked to default).
+- **Region ratings left out by default** (`REGION_FEATURES` in `src/config.py`, separate from the `BANK_*` sets): (1) these ratings are specific to Home Credit and their method is unknown, so a rating created for the Algerian wilayas would not share the same scale; (2) no data would make it possible to validate a rating per wilaya; (3) rating a client according to their region raises a fairness issue: they would be penalized for where they live. The address-consistency flags (`REG_*` / `LIVE_*`) stay in the bank sets, since they can be filled in for any client.
 - Data leakage control, reproducible pipeline, versioned models.
 
 ---
@@ -146,7 +148,7 @@ The advisor enters **verified** information, which feeds the bank models (`BANK_
 | **1 · Applicant** | Age, family status, number of children, number of family members, education, housing type, accompanied by (`NAME_TYPE_SUITE`), owns a car (and its age), owns real estate |
 | **2 · Employment and income** | Employment type, occupation, employer's sector (`ORGANIZATION_TYPE`), employment length, verified monthly income (DA) |
 | **3 · Loan offer** | **Goods / project price** (DA), **Total financed amount (including fees and insurance)** (DA), **monthly annuity of the bank's offer** (DA) |
-| **4 · File and contact details** | Documents provided (`FLAG_DOCUMENT_*`), phone and e-mail flags, address consistency (region / city of residence, registration and work), region indicators, years since registration, ID document issue and last phone change |
+| **4 · File and contact details** | Documents provided (`FLAG_DOCUMENT_*`), phone and e-mail flags, address consistency (region / city of residence, registration and work), years since registration, ID document issue and last phone change |
 
 **Two distinct amount fields, with a help text:** "Goods / project price" is the price of what the client wants to finance; "Total financed amount (including fees and insurance)" is the full amount of the loan, which in the dataset is always greater than or equal to the price (`GOODS_CREDIT_RATIO` ≤ 1). Entering the price in both fields would wrongly give a ratio of 1.
 
@@ -207,3 +209,4 @@ The ratios are computed by the API exactly as in the dataset: total financed amo
 | 17/11/2026 | `*_CNT_SOCIAL_CIRCLE` (4 columns) moved to the bank model with history only | Defaults observed in the applicant's surroundings are a form of history |
 | 17/11/2026 | Advisor form: the advisor enters the **real monthly annuity** of the bank's offer; the assumed-rate amortization formula is used for the public client form only | The advisor works on verified data: the real annuity is more faithful than an estimate |
 | 17/11/2026 | Advisor form: two distinct fields, "Goods / project price" and "Total financed amount (including fees and insurance)", with a help text | In the dataset the credit is always ≥ the goods price (fees, insurance): entering the price twice would force `GOODS_CREDIT_RATIO` to 1 |
+| 17/11/2026 | Region ratings (`REGION_POPULATION_RELATIVE`, `REGION_RATING_CLIENT`, `REGION_RATING_CLIENT_W_CITY`) moved to a separate `REGION_FEATURES` group, left out of the `BANK_*` sets by default; `REG_*` / `LIVE_*` flags kept | Home Credit-specific ratings with an unknown method (a wilaya rating would not share the scale), no data to validate a rating per wilaya, and a fairness issue (penalized for where one lives); AUC with and without the group measured in session 3 |

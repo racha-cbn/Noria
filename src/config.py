@@ -108,10 +108,17 @@ _BANK_CATEGORICAL = [
 _BANK_NUMERIC = [
     "CNT_CHILDREN",
     "CNT_FAM_MEMBERS",
+    "OWN_CAR_AGE",
+]
+
+# Region ratings computed by Home Credit: kept apart and NOT included in the BANK_* sets by default.
+# Unknown method (an Algerian wilaya rating would not share the scale), no data to validate a
+# rating per wilaya, and rating a client by where they live raises a fairness issue.
+# Session 3 measures the bank model's AUC with and without this group.
+REGION_FEATURES = [
     "REGION_POPULATION_RELATIVE",
     "REGION_RATING_CLIENT",
     "REGION_RATING_CLIENT_W_CITY",
-    "OWN_CAR_AGE",
 ]
 _CREATED = [
     "AGE_YEARS",
@@ -171,6 +178,7 @@ EXCLUDED_COLUMNS = {
     "INCOME_PER_PERSON": "monetary amount (currency-dependent)",
     "EXT_SOURCE_1/2/3": "external credit scores are a form of credit history (with-history model only)",
     "AMT_REQ_CREDIT_BUREAU_*": "inquiries to the credit bureau are credit history (with-history model only)",
+    "REGION_POPULATION_RELATIVE / REGION_RATING_CLIENT(_W_CITY)": "Home Credit region ratings (unknown method, not transferable to wilayas, fairness): separate REGION_FEATURES group, off by default",
     "*_CNT_SOCIAL_CIRCLE": "defaults observed in the social circle are a form of history (with-history model only)",
     "missing-value indicators of the above": "missingness of a history score is itself linked to default",
     "housing columns (_AVG/_MODE/_MEDI + 4 *_MODE)": "dropped during cleaning (empty on ~47% of rows)",
