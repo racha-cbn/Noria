@@ -1,0 +1,15 @@
+{
+  "experiment": "E1",
+  "logreg_auc": 0.6697657410642373,
+  "lgbm_auc": 0.7093268993097709,
+  "lgbm_minus_logreg": {
+    "auc_diff": 0.039561158245533634,
+    "ci_low": 0.033754433517014314,
+    "ci_high": 0.04594289324539342,
+    "share_of_resamples_above_0": 1.0,
+    "n_bootstrap": 1000
+  },
+  "rule": "LightGBM must beat the logistic regression in validation AUC; otherwise, investigate",
+  "rule_satisfied": true,
+  "decision": "LightGBM beats the logistic regression: LightGBM stays the main model"
+}

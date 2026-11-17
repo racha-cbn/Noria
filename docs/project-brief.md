@@ -2,7 +2,7 @@
 
 > **Assessing and explaining the credit risk of profiles with no banking history.**
 > Web + AI project · Bachelor's degree in computer science (SALEAM-IA), NIT · Racha CHABANE · Due end of December 2026
-> Last updated: 17 November 2026 (after the data preparation, session 2)
+> Last updated: 18 November 2026 (after the baseline models, session 3)
 
 ---
 
@@ -75,9 +75,9 @@ Three feature sets, defined in `src/config.py`:
 | **Variables** | Age, family status, children, employment type, employment length, pensioner, credit / income, duration, annuity / income | All relevant variables (ratios and variables without a monetary unit, including goods price / credit), **except** `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, `*_CNT_SOCIAL_CIRCLE` and their missing-value indicators. The Home Credit region ratings (`REGION_FEATURES`) are left out by default (section 7) | Bank without history + `EXT_SOURCE_*` + `AMT_REQ_CREDIT_BUREAU_*` + `*_CNT_SOCIAL_CIRCLE` |
 | **Output** | Category favorable / to strengthen / fragile, strengths and points to strengthen | Calibrated probability of default, risk class low / medium / high, recommendation accept / with conditions / refuse | Used for the comparison |
 
-**Algorithms:** LightGBM (main model), compared with a baseline logistic regression that must be beaten. Bonus: XGBoost and CatBoost for a comparison table.
+**Algorithms:** LightGBM (main model), compared with a baseline logistic regression that must be beaten (confirmed in E1: 0.7093 vs 0.6698 validation AUC). Bonus: XGBoost and CatBoost for a comparison table.
 
-**Training:** class weighting, 5-fold stratified cross-validation, hyperparameter tuning, early stopping.
+**Training:** class weighting (`class_weight="balanced"`), number of trees chosen by early stopping in a 5-fold stratified cross-validation **on the train set**, then refit on the whole train set; `random_state = 42` everywhere (`src/train.py`). Hyperparameter tuning: not done yet (session 3 uses reasonable defaults). Trained models are saved in `models/` (not versioned); metrics are saved as JSON in `reports/metrics/` (versioned).
 
 **Calibration:** isotonic or Platt, so that a displayed probability of 20% corresponds to about 20% actual defaults (choice: experiment E8 in [experiments.md](experiments.md)).
 
@@ -93,7 +93,7 @@ Three feature sets, defined in `src/config.py`:
 ## 6. Evaluation
 
 - **Main metric: AUC-ROC** (suited to imbalance, unlike accuracy), complemented by AUC-PR, recall on defaults and the confusion matrix.
-- **Test set used only once**, at the end. Selection metrics are computed on the validation set.
+- **Test set used only once**, at the end. Selection metrics are computed on the validation set. The test set is locked in the code: `load_split("test")` raises an error unless `final=True` is passed explicitly (`src/data.py`).
 - **Gap between bank with / without history / client measured and displayed: this is the original contribution of the project.** It shows what the lack of history and unverified information cost in accuracy.
 - **Every planned measurement, with its decision rule fixed in advance, is pre-registered in [experiments.md](experiments.md)** (E1 to E9: baseline, cost of the history, client model viability, region features, real no-history profiles, target population, interest-rate sensitivity, calibration, fairness audit), then completed with its result.
 
@@ -173,7 +173,8 @@ The ratios are computed by the API exactly as in the dataset: total financed amo
 
 - **The data is not Algerian.** Noria is a proof of concept: the method (ratios, double model, explainability, fairness) is transferable, but real-world use would require retraining on local data.
 - **The target population is under-represented.** The dataset has no freelancer or self-employed category (only 10 "Businessman"), and 51.6% of applicants are employees. Predictions for profiles like Amine are therefore less reliable.
-- **The model without history is less accurate**, since it loses the most predictive variables. This gap is measured and is a result of the project, not a hidden flaw.
+- **The model without history is less accurate**, since it loses the most predictive variables. This gap is measured and is a result of the project, not a hidden flaw (E2: −0.057 AUC).
+- **`CREDIT_TERM` reflects Home Credit's pricing.** It is the top feature of the client and bank models (50% and 28% of the gain). Annuities follow a grid of 806 annuity / credit ratios whose default rates differ widely, so the variable most likely carries the lender's risk-based pricing. The public form computes it with an assumed interest rate, without that signal: the client model's validation AUC (0.6883) is probably optimistic for real use.
 
 ---
 
@@ -207,3 +208,8 @@ The ratios are computed by the API exactly as in the dataset: total financed amo
 | 17/11/2026 | Advisor form: two distinct fields, "Goods / project price" and "Total financed amount (including fees and insurance)", with a help text | In the dataset the credit is always ≥ the goods price (fees, insurance): entering the price twice would force `GOODS_CREDIT_RATIO` to 1 |
 | 17/11/2026 | Region ratings (`REGION_POPULATION_RELATIVE`, `REGION_RATING_CLIENT`, `REGION_RATING_CLIENT_W_CITY`) moved to a separate `REGION_FEATURES` group, left out of the `BANK_*` sets by default; `REG_*` / `LIVE_*` flags kept | Home Credit-specific ratings with an unknown method (a wilaya rating would not share the scale), no data to validate a rating per wilaya, and a fairness issue (penalized for where one lives); AUC with and without the group measured in session 3 |
 | 18/11/2026 | Pre-registered experiment log created: [experiments.md](experiments.md) (E1 to E9); details of the planned measurements moved there from section 6 | Each measurement and its decision rule are written before the result is seen; a rule changed afterwards must be logged here with its reason |
+| 18/11/2026 | Number of LightGBM trees chosen by early stopping in a 5-fold stratified CV **on the train set**, then refit on the whole train set; no hyperparameter search yet | The validation set stays untouched for the comparisons of the experiment log |
+| 18/11/2026 | Test set locked in the code (`load_split("test")` refuses without `final=True`) | Guarantees the test set is used only once, for the final results |
+| 18/11/2026 | Trained models saved in `models/` (not versioned), metrics saved as JSON in `reports/metrics/` (versioned) | Models are regenerated by the notebooks; metrics must stay traceable |
+| 18/11/2026 | E1: LightGBM confirmed as the main model | Validation AUC 0.7093 vs 0.6698 for the logistic regression (rule in [experiments.md](experiments.md)) |
+| 18/11/2026 | E3: client model kept | Validation AUC 0.6883 ≥ 0.65 (rule applied as written); caveat on `CREDIT_TERM` added to the limitations |

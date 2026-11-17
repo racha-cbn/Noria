@@ -1,0 +1,11 @@
+{
+  "experiment": "E3",
+  "client_lgbm_auc": 0.6882678295609432,
+  "client_lgbm_ci": [
+    0.6779979418381119,
+    0.6978793363036353
+  ],
+  "client_logreg_auc_indicative": 0.6181046711129954,
+  "rule": ">= 0.65 kept; 0.60-0.65 kept with a stronger caution message; < 0.60 dropped",
+  "decision": "kept"
+}

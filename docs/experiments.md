@@ -14,9 +14,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 
 | ID | Experiment | Status |
 |---|---|---|
-| E1 | Baseline: logistic regression vs LightGBM | planned |
-| E2 | Cost of the history (main contribution) | planned |
-| E3 | Client model viability | planned |
+| E1 | Baseline: logistic regression vs LightGBM | done |
+| E2 | Cost of the history (main contribution) | done |
+| E3 | Client model viability | done |
 | E4 | Region features | planned |
 | E5 | Real no-history profiles | planned |
 | E6 | Target population | planned |
@@ -35,9 +35,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | Logistic regression vs LightGBM, both on `BANK_NO_HISTORY_FEATURES` |
 | **Metric** | AUC-ROC on the validation set |
 | **Decision rule (fixed in advance)** | LightGBM must beat the logistic regression in validation AUC; otherwise, investigate before going further |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 3, 18/11/2026) |
+| **Result** | Validation AUC: logistic regression 0.6698 [0.6594, 0.6789] vs LightGBM **0.7093** [0.6993, 0.7184] (95% bootstrap CI, 1,000 resamples). Paired difference LightGBM − logreg: +0.0396 [+0.0338, +0.0459]. PR-AUC 0.1641 vs 0.1947. Details: `reports/metrics/e1.json`, notebook 03 |
+| **Decision taken** | Rule satisfied: LightGBM beats the logistic regression. LightGBM stays the main model, no investigation needed |
 
 ---
 
@@ -50,9 +50,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | Bank model with history (`BANK_WITH_HISTORY_FEATURES`) vs bank model without history (`BANK_NO_HISTORY_FEATURES`) |
 | **Metric** | AUC gap, with a bootstrap confidence interval |
 | **Decision rule (fixed in advance)** | None: this is a measurement to report |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 3, 18/11/2026) |
+| **Result** | Validation AUC: with history **0.7663** [0.7579, 0.7742] vs without history **0.7093** [0.6993, 0.7184]. Gap with − without: **+0.0569**, paired bootstrap 95% CI [+0.0502, +0.0647] (1,000 resamples, same resamples for both models). PR-AUC 0.2592 vs 0.1947. Details: `reports/metrics/e2.json`, notebook 03 |
+| **Decision taken** | Measurement reported (no decision rule): losing the credit history costs about 0.057 AUC |
 
 ---
 
@@ -65,9 +65,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | Client model (`CLIENT_FEATURES`) against the thresholds below |
 | **Metric** | AUC-ROC on the validation set |
 | **Decision rule (fixed in advance)** | ≥ 0.65 → kept; between 0.60 and 0.65 → kept with a stronger caution message; < 0.60 → dropped |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 3, 18/11/2026) |
+| **Result** | Validation AUC of the LightGBM client model: **0.6883** [0.6780, 0.6979], PR-AUC 0.1708. Logistic regression (indicative): 0.6181. Note: `CREDIT_TERM` carries 50.07% of the gain and most likely encodes Home Credit's risk-based pricing, which the public form (assumed interest rate) cannot reproduce; this AUC is therefore probably optimistic for real use (notebook 03, section 5.1). Details: `reports/metrics/e3.json` |
+| **Decision taken** | ≥ 0.65: the client model is **kept** (rule applied as written) |
 
 ---
 

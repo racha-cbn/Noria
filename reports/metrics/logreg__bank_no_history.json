@@ -1,0 +1,19 @@
+{
+  "roc_auc": 0.6697657410642373,
+  "ci_low": 0.6594268021194618,
+  "ci_high": 0.6789220545868063,
+  "n_bootstrap": 1000,
+  "pr_auc": 0.16405438767302388,
+  "rows": 41735,
+  "positives": 3483,
+  "positive_rate": 0.08345513358092728,
+  "feature_set": "bank_no_history",
+  "train_auc": 0.6694656826461671,
+  "train_minus_val_auc": -0.000300058418070126,
+  "training": {
+    "model_type": "logreg",
+    "n_features": 53,
+    "train_rows": 194762,
+    "train_auc": 0.6694656826461671
+  }
+}

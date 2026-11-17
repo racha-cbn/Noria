@@ -1,0 +1,50 @@
+{
+  "roc_auc": 0.76626014484419,
+  "ci_low": 0.7578632001203086,
+  "ci_high": 0.7741728968387158,
+  "n_bootstrap": 1000,
+  "pr_auc": 0.2592213555422265,
+  "rows": 41735,
+  "positives": 3483,
+  "positive_rate": 0.08345513358092728,
+  "feature_set": "bank_with_history",
+  "train_auc": 0.8302235361375352,
+  "train_minus_val_auc": 0.06396339129334516,
+  "training": {
+    "model_type": "lgbm",
+    "n_features": 66,
+    "train_rows": 194762,
+    "n_estimators": 392,
+    "cv_folds": [
+      {
+        "fold": 1,
+        "best_iteration": 233,
+        "fold_auc": 0.7572891694244512
+      },
+      {
+        "fold": 2,
+        "best_iteration": 452,
+        "fold_auc": 0.7662128617522804
+      },
+      {
+        "fold": 3,
+        "best_iteration": 296,
+        "fold_auc": 0.7602317363812645
+      },
+      {
+        "fold": 4,
+        "best_iteration": 555,
+        "fold_auc": 0.7633045768018013
+      },
+      {
+        "fold": 5,
+        "best_iteration": 426,
+        "fold_auc": 0.7618935098978321
+      }
+    ],
+    "cv_mean_auc": 0.7617863708515259,
+    "train_auc": 0.8302235361375352
+  },
+  "top_feature": "EXT_SOURCE_3",
+  "top_feature_gain_share": 0.20332379323448782
+}

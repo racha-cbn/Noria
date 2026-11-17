@@ -116,6 +116,25 @@ def save_splits(train, val, test, out_dir=config.PROCESSED_DIR):
     return paths
 
 
-def load_splits(in_dir=config.PROCESSED_DIR):
-    """Read train/val/test back from data/processed/."""
-    return tuple(pd.read_parquet(in_dir / f"{name}.parquet") for name in ("train", "val", "test"))
+class TestSetLockedError(RuntimeError):
+    """Raised when the test set is requested without final=True."""
+
+
+def load_split(name, final=False, in_dir=config.PROCESSED_DIR):
+    """Read one split ("train", "val" or "test") from data/processed/.
+
+    The test set is locked: it is used only once, for the final results
+    (docs/experiments.md). Loading it requires final=True explicitly.
+    """
+    if name not in ("train", "val", "test"):
+        raise ValueError(f"unknown split: {name!r}")
+    if name == "test" and not final:
+        raise TestSetLockedError(
+            "The test set is locked until the final evaluation. "
+            "Use load_split('test', final=True) only for the final results.")
+    return pd.read_parquet(in_dir / f"{name}.parquet")
+
+
+def load_train_val(in_dir=config.PROCESSED_DIR):
+    """Read the train and validation splits (never the test set)."""
+    return load_split("train", in_dir=in_dir), load_split("val", in_dir=in_dir)

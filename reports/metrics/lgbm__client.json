@@ -1,0 +1,50 @@
+{
+  "roc_auc": 0.6882678295609432,
+  "ci_low": 0.6779979418381119,
+  "ci_high": 0.6978793363036353,
+  "n_bootstrap": 1000,
+  "pr_auc": 0.17076596632513164,
+  "rows": 41735,
+  "positives": 3483,
+  "positive_rate": 0.08345513358092728,
+  "feature_set": "client",
+  "train_auc": 0.723236082009641,
+  "train_minus_val_auc": 0.03496825244869772,
+  "training": {
+    "model_type": "lgbm",
+    "n_features": 9,
+    "train_rows": 194762,
+    "n_estimators": 189,
+    "cv_folds": [
+      {
+        "fold": 1,
+        "best_iteration": 147,
+        "fold_auc": 0.6763375496895324
+      },
+      {
+        "fold": 2,
+        "best_iteration": 167,
+        "fold_auc": 0.6903497208453426
+      },
+      {
+        "fold": 3,
+        "best_iteration": 168,
+        "fold_auc": 0.6870292439036476
+      },
+      {
+        "fold": 4,
+        "best_iteration": 266,
+        "fold_auc": 0.6806148060563612
+      },
+      {
+        "fold": 5,
+        "best_iteration": 196,
+        "fold_auc": 0.6864297640530952
+      }
+    ],
+    "cv_mean_auc": 0.6841522169095958,
+    "train_auc": 0.723236082009641
+  },
+  "top_feature": "CREDIT_TERM",
+  "top_feature_gain_share": 0.5006975041011678
+}

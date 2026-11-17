@@ -1,0 +1,50 @@
+{
+  "roc_auc": 0.7093268993097709,
+  "ci_low": 0.699308324105771,
+  "ci_high": 0.7183667886153337,
+  "n_bootstrap": 1000,
+  "pr_auc": 0.19465879109654635,
+  "rows": 41735,
+  "positives": 3483,
+  "positive_rate": 0.08345513358092728,
+  "feature_set": "bank_no_history",
+  "train_auc": 0.76464998274238,
+  "train_minus_val_auc": 0.055323083432609166,
+  "training": {
+    "model_type": "lgbm",
+    "n_features": 53,
+    "train_rows": 194762,
+    "n_estimators": 253,
+    "cv_folds": [
+      {
+        "fold": 1,
+        "best_iteration": 229,
+        "fold_auc": 0.6979958300364646
+      },
+      {
+        "fold": 2,
+        "best_iteration": 212,
+        "fold_auc": 0.7103345181009877
+      },
+      {
+        "fold": 3,
+        "best_iteration": 322,
+        "fold_auc": 0.7038802082482958
+      },
+      {
+        "fold": 4,
+        "best_iteration": 287,
+        "fold_auc": 0.6970189908492775
+      },
+      {
+        "fold": 5,
+        "best_iteration": 216,
+        "fold_auc": 0.7045331758523368
+      }
+    ],
+    "cv_mean_auc": 0.7027525446174725,
+    "train_auc": 0.76464998274238
+  },
+  "top_feature": "CREDIT_TERM",
+  "top_feature_gain_share": 0.27637759271707213
+}

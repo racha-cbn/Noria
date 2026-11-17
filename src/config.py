@@ -46,7 +46,7 @@ MISSING_LABEL = "Missing"
 # Assumed annual interest rate used by the API to turn (amount, duration) into a
 # monthly annuity with the standard amortization formula, so that the client ratios
 # are computed exactly as in the dataset (where the annuity includes interest).
-# A sensitivity analysis at 5%, 10% and 15% is planned for session 3.
+# Sensitivity at 5%, 10% and 15%: experiment E7 in docs/experiments.md.
 ASSUMED_ANNUAL_INTEREST_RATE = 0.10
 
 # DAYS_* columns converted to positive years (new name: source column)
@@ -114,7 +114,7 @@ _BANK_NUMERIC = [
 # Region ratings computed by Home Credit: kept apart and NOT included in the BANK_* sets by default.
 # Unknown method (an Algerian wilaya rating would not share the scale), no data to validate a
 # rating per wilaya, and rating a client by where they live raises a fairness issue.
-# Session 3 measures the bank model's AUC with and without this group.
+# The bank model's AUC with and without this group is measured in experiment E4 (docs/experiments.md).
 REGION_FEATURES = [
     "REGION_POPULATION_RELATIVE",
     "REGION_RATING_CLIENT",

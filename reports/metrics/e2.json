@@ -1,0 +1,14 @@
+{
+  "experiment": "E2",
+  "with_history_auc": 0.76626014484419,
+  "no_history_auc": 0.7093268993097709,
+  "with_minus_without": {
+    "auc_diff": 0.05693324553441914,
+    "ci_low": 0.050225825291119096,
+    "ci_high": 0.06472681684922069,
+    "share_of_resamples_above_0": 1.0,
+    "n_bootstrap": 1000
+  },
+  "rule": "None: measurement to report",
+  "decision": "Measurement reported (no decision rule)"
+}
