@@ -85,7 +85,7 @@ Three feature sets, defined in `src/config.py`:
 
 **Client model constraint:** each variable must be computable from the form inputs alone.
 - **Income unit (assumption deduced from the data):** the dataset does not state the unit of `AMT_INCOME_TOTAL` and `AMT_ANNUITY`. They are read as **monthly** amounts in the same unit, the only coherent reading: in 91.1% of rows the annuity is larger than income ÷ 12, so an annual income is ruled out, while the monthly reading gives a realistic median debt-to-income ratio (17.2%) and a `CREDIT_TERM` in months (median 20.7). The form's monthly income is used as is, with no conversion.
-- **Annuity and duration:** in the dataset the annuity includes interest. The API computes the monthly annuity from the amount and the duration with the standard amortization formula and an assumed annual interest rate (10% by default, constant `ASSUMED_ANNUAL_INTEREST_RATE` in `src/config.py`), then computes the ratios exactly as in the dataset (credit ÷ annuity, annuity ÷ income, credit ÷ income).
+- **Annuity and duration:** in the dataset the annuity includes interest. For the public client form only, the API computes the monthly annuity from the amount and the duration with the standard amortization formula and an assumed annual interest rate (10% by default, constant `ASSUMED_ANNUAL_INTEREST_RATE` in `src/config.py`), then computes the ratios exactly as in the dataset (credit ÷ annuity, annuity ÷ income, credit ÷ income).
 - **Sensitivity analysis (session 3):** the client model's results will be compared for assumed rates of 5%, 10% and 15%.
 
 ---
@@ -121,7 +121,9 @@ Three feature sets, defined in `src/config.py`:
 
 ---
 
-## 9. Client form (aligned with the model)
+## 9. Forms (aligned with the models)
+
+### Client form (public)
 
 | Step | Fields |
 |---|---|
@@ -134,6 +136,23 @@ Removed compared with the initial version: **personal contribution** and **purpo
 Mapping to the dataset: "freelancer" and "self-employed" are mapped to the closest category (`Commercial associate`). This is an approximation, documented in the limitations.
 
 **"Unemployed" profile:** if the client chooses "unemployed", Noria displays no score, only a message explaining that this profile cannot be estimated reliably (too few examples in the data: 15 unemployed applicants among the cash loans).
+
+### Advisor form
+
+The advisor enters **verified** information, which feeds the bank models (`BANK_NO_HISTORY_FEATURES`, `BANK_WITH_HISTORY_FEATURES` in `src/config.py`).
+
+| Step | Fields |
+|---|---|
+| **1 · Applicant** | Age, family status, number of children, number of family members, education, housing type, accompanied by (`NAME_TYPE_SUITE`), owns a car (and its age), owns real estate |
+| **2 · Employment and income** | Employment type, occupation, employer's sector (`ORGANIZATION_TYPE`), employment length, verified monthly income (DA) |
+| **3 · Loan offer** | **Goods / project price** (DA), **Total financed amount (including fees and insurance)** (DA), **monthly annuity of the bank's offer** (DA) |
+| **4 · File and contact details** | Documents provided (`FLAG_DOCUMENT_*`), phone and e-mail flags, address consistency (region / city of residence, registration and work), region indicators, years since registration, ID document issue and last phone change |
+
+**Two distinct amount fields, with a help text:** "Goods / project price" is the price of what the client wants to finance; "Total financed amount (including fees and insurance)" is the full amount of the loan, which in the dataset is always greater than or equal to the price (`GOODS_CREDIT_RATIO` ≤ 1). Entering the price in both fields would wrongly give a ratio of 1.
+
+**Real annuity:** the advisor enters the monthly annuity of the bank's actual offer (verified data). The amortization formula with an assumed interest rate is used **only** for the public client form.
+
+The ratios are computed by the API exactly as in the dataset: total financed amount ÷ income, annuity ÷ income, total financed amount ÷ annuity, goods price ÷ total financed amount.
 
 ---
 
@@ -186,3 +205,5 @@ Mapping to the dataset: "freelancer" and "self-employed" are mapped to the close
 | 17/11/2026 | `OCCUPATION_TYPE` missing values imputed with a `Missing` category | Missing for every pensioner (31.9% of rows): "most frequent" would turn them all into "Laborers" |
 | 17/11/2026 | Raw amounts removed from the bank models (`AMT_INCOME_TOTAL`, `AMT_CREDIT`, `AMT_ANNUITY`, `AMT_GOODS_PRICE`, `INCOME_PER_PERSON`); `GOODS_CREDIT_RATIO` added | Only ratios and unit-free variables, so the model does not depend on the currency (the advisor enters amounts in DA) |
 | 17/11/2026 | `*_CNT_SOCIAL_CIRCLE` (4 columns) moved to the bank model with history only | Defaults observed in the applicant's surroundings are a form of history |
+| 17/11/2026 | Advisor form: the advisor enters the **real monthly annuity** of the bank's offer; the assumed-rate amortization formula is used for the public client form only | The advisor works on verified data: the real annuity is more faithful than an estimate |
+| 17/11/2026 | Advisor form: two distinct fields, "Goods / project price" and "Total financed amount (including fees and insurance)", with a help text | In the dataset the credit is always ≥ the goods price (fees, insurance): entering the price twice would force `GOODS_CREDIT_RATIO` to 1 |
