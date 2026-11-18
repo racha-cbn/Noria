@@ -23,6 +23,8 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E7 | Sensitivity to the assumed interest rate | planned |
 | E8 | Calibration | planned |
 | E9 (bonus) | Fairness audit | planned |
+| E10 | Client model without the pricing signal | planned |
+| E11 | Weight of the pricing signal in the bank model | planned |
 
 ---
 
@@ -154,6 +156,36 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Question** | Does the model treat groups differently by sex and by age? |
 | **Comparison** | Groups by sex and by age group (Fairlearn) |
 | **Metric** | Acceptance rates and error rates per group |
+| **Decision rule (fixed in advance)** | None: this is a measurement to report |
+| **Status** | planned |
+| **Result** | |
+| **Decision taken** | |
+
+---
+
+## E10 — Client model without the pricing signal
+
+| Field | Content |
+|---|---|
+| **ID** | E10 |
+| **Question** | Is the client model still good enough without the variables that carry Home Credit's risk-based pricing? |
+| **Comparison** | LightGBM on `CLIENT_FEATURES` without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`. Both contain Home Credit's risk-based pricing (the annuity includes the interest rate set for the applicant), which is absent from the public form, where the annuity is computed with a fixed assumed rate. Same protocol as E1-E3 |
+| **Metric** | AUC-ROC on the validation set (95% bootstrap CI) |
+| **Decision rule (fixed in advance)** | Identical to E3: ≥ 0.65 → kept; between 0.60 and 0.65 → kept with a stronger caution message; < 0.60 → dropped. **E10, not E3, decides the fate of the client model**, and if the model is kept, the E10 feature list becomes `CLIENT_FEATURES` |
+| **Status** | planned |
+| **Result** | |
+| **Decision taken** | |
+
+---
+
+## E11 — Weight of the pricing signal in the bank model
+
+| Field | Content |
+|---|---|
+| **ID** | E11 |
+| **Question** | How much of the bank model's performance comes from the pricing signal? |
+| **Comparison** | LightGBM on `BANK_NO_HISTORY_FEATURES` with vs without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`. Same protocol as E1-E3 |
+| **Metric** | AUC difference, paired bootstrap 95% CI |
 | **Decision rule (fixed in advance)** | None: this is a measurement to report |
 | **Status** | planned |
 | **Result** | |
