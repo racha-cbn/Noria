@@ -43,11 +43,10 @@ MISSING_LABEL = "Missing"
 # debt-to-income ratio and CREDIT_TERM (median ~20.7) is a number of months.
 # The form's monthly income is therefore used as is (no x12 conversion).
 
-# Assumed annual interest rate used by the API to turn (amount, duration) into a
-# monthly annuity with the standard amortization formula, so that the client ratios
-# are computed exactly as in the dataset (where the annuity includes interest).
-# Since E10 the client features no longer use the annuity or the duration (see project-brief.md).
-# Sensitivity at 5%, 10% and 15%: experiment E7 in docs/experiments.md.
+# Assumed annual interest rate, used ONLY for the indicative estimate shown to the client:
+# monthly annuity from (amount, duration) with the standard amortization formula, and its
+# share of the monthly income. Since E10 the client features no longer use the annuity or the
+# duration, so this rate never enters the score (E7, the sensitivity analysis, was cancelled).
 ASSUMED_ANNUAL_INTEREST_RATE = 0.10
 
 # DAYS_* columns converted to positive years (new name: source column)

@@ -20,7 +20,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E4 | Region features | planned |
 | E5 | Real no-history profiles | planned |
 | E6 | Target population | planned |
-| E7 | Sensitivity to the assumed interest rate | planned |
+| E7 | Sensitivity to the assumed interest rate | cancelled (since E10) |
 | E8 | Calibration | planned |
 | E9 (bonus) | Fairness audit | planned |
 | E10 | Client model without the pricing signal | done |
@@ -128,9 +128,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | Client category obtained with an assumed rate of 5%, 10% and 15% |
 | **Metric** | Share of profiles whose category changes between 5% and 15% |
 | **Decision rule (fixed in advance)** | If more than 10% of profiles change category between 5% and 15%, report it as a limitation in the client interface |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | cancelled (18/11/2026) |
+| **Result** | Not run |
+| **Decision taken** | Cancelled: Since E10, the client model no longer uses any variable that depends on the annuity (`CREDIT_TERM` and `ANNUITY_INCOME_RATIO` removed), so the assumed interest rate has no effect on the score |
 
 ---
 

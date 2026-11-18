@@ -85,8 +85,8 @@ Three feature sets, defined in `src/config.py`:
 
 **Client model constraint:** each variable must be computable from the form inputs alone.
 - **Income unit (assumption deduced from the data):** the dataset does not state the unit of `AMT_INCOME_TOTAL` and `AMT_ANNUITY`. They are read as **monthly** amounts in the same unit, the only coherent reading: in 91.1% of rows the annuity is larger than income ÷ 12, so an annual income is ruled out, while the monthly reading gives a realistic median debt-to-income ratio (17.2%) and a `CREDIT_TERM` in months (median 20.7). The form's monthly income is used as is, with no conversion.
-- **Annuity and duration:** in the dataset the annuity includes interest. For the public client form only, the API computes the monthly annuity from the amount and the duration with the standard amortization formula and an assumed annual interest rate (10% by default, constant `ASSUMED_ANNUAL_INTEREST_RATE` in `src/config.py`), then computes the ratios exactly as in the dataset (credit ÷ annuity, annuity ÷ income, credit ÷ income). **Since E10, the client features no longer use the annuity or the duration** (`CREDIT_TERM` and `ANNUITY_INCOME_RATIO` removed): only credit ÷ income remains. What to do with the duration field and the assumed rate is an open question.
-- **Sensitivity to the assumed rate:** experiment E7 in [experiments.md](experiments.md).
+- **Annuity and duration:** since E10, the client features no longer use the annuity or the duration (`CREDIT_TERM` and `ANNUITY_INCOME_RATIO` removed): the score only uses credit ÷ income among the amounts. The duration field and the assumed annual interest rate (10%, constant `ASSUMED_ANNUAL_INTEREST_RATE` in `src/config.py`) serve **only** to show the client an indicative estimate: the monthly annuity computed with the standard amortization formula, and its share of the monthly income. This estimate is clearly marked as such and does **not** enter the score.
+- **Sensitivity to the assumed rate:** experiment E7 cancelled, since the assumed rate no longer has any effect on the score (see [experiments.md](experiments.md)).
 
 ---
 
@@ -127,11 +127,13 @@ Three feature sets, defined in `src/config.py`:
 |---|---|
 | **1 · Profile** | Age, family status, number of dependent children |
 | **2 · Activity** | Employment type (employee, freelancer, self-employed, unemployed, retired), employment length, monthly income (DA) |
-| **3 · Project** | Requested amount (DA), duration (months) |
+| **3 · Project** | Requested amount (DA), duration (months; used only for the indicative estimate below) |
 
 Removed compared with the initial version: **personal contribution** and **purpose of the credit** (absent from the dataset, so unusable by the model).
 
 Mapping to the dataset: "freelancer" and "self-employed" are mapped to the closest category (`Commercial associate`). This is an approximation, documented in the limitations.
+
+**Indicative estimate (not part of the score):** from the amount and the duration, Noria shows the estimated monthly annuity (amortization formula, assumed annual rate of 10%) and its share of the monthly income. It is clearly labelled as an estimate based on an assumed rate, and it does not enter the score, which only uses credit ÷ income among the amounts.
 
 **"Unemployed" profile:** if the client chooses "unemployed", Noria displays no score, only a message explaining that this profile cannot be estimated reliably (too few examples in the data: 15 unemployed applicants among the cash loans).
 
@@ -175,6 +177,7 @@ The ratios are computed by the API exactly as in the dataset: total financed amo
 - **The target population is under-represented.** The dataset has no freelancer or self-employed category (only 10 "Businessman"), and 51.6% of applicants are employees. Predictions for profiles like Amine are therefore less reliable.
 - **The model without history is less accurate**, since it loses the most predictive variables. This gap is measured and is a result of the project, not a hidden flaw (E2: −0.057 AUC).
 - **`CREDIT_TERM` reflects Home Credit's pricing.** It was the top feature of the client and bank models (50% and 28% of the gain). Annuities follow a grid of 806 annuity / credit ratios whose default rates differ widely, so the variable most likely carries the lender's risk-based pricing. The public form cannot reproduce it, so the client model was re-evaluated without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO` (E10): its validation AUC drops from 0.6883 to **0.6189**. In the bank model without history, these two variables are worth +0.0298 AUC (E11: 0.7093 vs 0.6795).
+- **The bank model benefits from Home Credit's risk-based pricing.** It uses the real annuity, which at Home Credit includes an interest rate set according to risk (E11: +0.030 AUC from `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`). An Algerian bank that does not price according to risk could get a performance closer to 0.680 than to 0.709.
 - **The client model is weak** (validation AUC 0.6189, close to the 0.60 threshold): it is shown with a stronger caution message, and it rests mostly on employment length, age and credit ÷ income.
 
 ---
@@ -217,4 +220,5 @@ The ratios are computed by the API exactly as in the dataset: total financed amo
 | 18/11/2026 | E10 and E11 pre-registered (commit "Pre-register E10 and E11") before being run; **E10, not E3, decides the fate of the client model** (E3 marked "Superseded by E10", result and rule unchanged) | Session 3 showed that `CREDIT_TERM` and `ANNUITY_INCOME_RATIO` carry Home Credit's risk-based pricing, absent from the public form: E3 measured the client model with a signal it will not have |
 | 18/11/2026 | E10: client model **kept with a stronger caution message**; `CLIENT_FEATURES` reduced to 7 features (without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`); the E3 list is kept as `CLIENT_FEATURES_E3` for reproducibility | Validation AUC 0.6189 [0.6092, 0.6291], between 0.60 and 0.65 (rule applied as written) |
 | 18/11/2026 | E11 reported: the pricing signal is worth +0.0298 AUC [+0.0249, +0.0349] in the bank model without history | Measurement to report (no decision rule); the bank feature lists are unchanged |
-| 18/11/2026 | Hyperparameter tuning scheduled for the next session, after E10, on the final feature lists | Tuning on feature lists that could still change would be wasted |
+| 18/11/2026 | Hyperparameter tuning scheduled for the next session, after E10, on the final feature lists | Tuning on feature lists that could still change would be wasted || 18/11/2026 | E7 **cancelled** (kept in [experiments.md](experiments.md), not deleted) | Since E10, the client model no longer uses any variable that depends on the annuity, so the assumed interest rate has no effect on the score |
+| 18/11/2026 | Client form: the duration field is kept **only** to display an indicative estimate (monthly annuity with the amortization formula at an assumed 10%, and its share of the monthly income), clearly marked as an estimate and **not** used in the score | Useful information for the client, without reintroducing an assumed rate into the score |
