@@ -29,6 +29,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E12 | New features | done |
 | E13 | Hyperparameter tuning (Optuna) | done |
 | E14 | Risk classes | done |
+| E15 | Cost and effect of removing age from the client model | planned |
 
 ---
 
@@ -246,3 +247,18 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (session 5, 18/11/2026) |
 | **Result** | Bank without history (Platt): low/accept **33.83%** of clients (actual default rate 3.25%), medium/accept with conditions **45.22%** (7.38%), high/refuse **20.94%** (18.66%). Client (Platt): favorable **11.40%** (4.50%), to strengthen **73.14%** (7.72%), fragile **15.47%** (14.16%). Details: `reports/metrics/e14.json`, notebook 05 section 2 |
 | **Decision taken** | Thresholds kept (5% / 12%). Default rates increase from low to high and no class exceeds 80% (largest: client "to strengthen", 73.14%): **no limitation triggered** by the rule |
+
+---
+
+## E15 — Cost and effect of removing age from the client model
+
+| Field | Content |
+|---|---|
+| **ID** | E15 |
+| **Question** | What would removing `AGE_YEARS` cost the client model, and how would it change the categories by age? |
+| **Comparison** | Current LightGBM client model (`CLIENT_FEATURES`, 7 features) vs the same without `AGE_YEARS` (6 features). Same tuned parameters as E13 (`e13_best_params__client.json`), number of trees by early stopping in a 5-fold CV on train, same Platt calibration (fitted on out-of-fold train predictions), same E14 thresholds (5% / 12%) |
+| **Metric** | On the validation set: overall AUC with 95% bootstrap CI and the paired bootstrap CI of the difference; AUC (95% CI) of the 20-35 group and of `Commercial associate`; share of favorable / to strengthen / fragile per age group (E6 bins), with the actual default rate per class |
+| **Decision rule (fixed in advance)** | None: this is a measurement to report. The decision to keep age in the client model is already taken (see the Decision log of the brief); `CLIENT_FEATURES` does not change |
+| **Status** | planned |
+| **Result** | |
+| **Decision taken** | |
