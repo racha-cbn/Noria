@@ -60,6 +60,15 @@ def add_features(df):
     df["GOODS_CREDIT_RATIO"] = safe_divide(df["AMT_GOODS_PRICE"], df["AMT_CREDIT"])
     df["INCOME_PER_PERSON"] = safe_divide(df["AMT_INCOME_TOTAL"], df["CNT_FAM_MEMBERS"])
     df["EMPLOYMENT_AGE_RATIO"] = safe_divide(df["EMPLOYMENT_YEARS"], df["AGE_YEARS"])
+
+    # Session 4 candidates (experiment E12): deterministic, no raw amount, no history.
+    doc_flags = [c for c in df.columns if c.startswith("FLAG_DOCUMENT_")]
+    df["DOC_COUNT"] = df[doc_flags].sum(axis=1)
+    df["CONTACT_COUNT"] = df[config.CONTACT_FLAGS].sum(axis=1)
+    df["AGE_AT_EMPLOYMENT_START"] = df["AGE_YEARS"] - df["EMPLOYMENT_YEARS"]
+    df["CHILDREN_RATIO"] = safe_divide(df["CNT_CHILDREN"], df["CNT_FAM_MEMBERS"])
+    df["ID_PUBLISH_AGE_RATIO"] = safe_divide(df["ID_PUBLISH_YEARS"], df["AGE_YEARS"])
+    df["REGISTRATION_AGE_RATIO"] = safe_divide(df["REGISTRATION_YEARS"], df["AGE_YEARS"])
     return df
 
 

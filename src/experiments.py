@@ -1,4 +1,4 @@
-"""Experiments E1-E3, E10 and E11 of docs/experiments.md, on the VALIDATION set only.
+"""Experiments E1-E3 and E10-E13 of docs/experiments.md, on the VALIDATION set only.
 
 The decision rules below are copied from docs/experiments.md and must not be
 changed after seeing the results (see the rules at the top of that file).
@@ -6,6 +6,7 @@ changed after seeing the results (see the rules at the top of that file).
 from src import config, data
 from src import evaluate as ev
 from src import train as tr
+from src import tuning
 
 # --- Decision rules, as pre-registered in docs/experiments.md ----------------
 E3_KEEP_THRESHOLD = 0.65     # >= 0.65: kept
@@ -193,3 +194,126 @@ def run_all():
     return {"train": train, "val": val, "results": results,
             "e1": run_e1(results, y_val), "e2": run_e2(results, y_val), "e3": run_e3(results),
             "sanity": sanity_checks(results)}
+
+
+# --- Session 4: E12 (new features) and E13 (hyperparameter tuning) ----------
+
+E12_LISTS = {
+    # name: (reference list without new features, candidates added)
+    "bank_no_history": (config.BANK_NO_HISTORY_FEATURES_PRE_E12, config.E12_BANK_CANDIDATES),
+    "bank_with_history": (config.BANK_WITH_HISTORY_FEATURES_PRE_E12, config.E12_BANK_CANDIDATES),
+    "client": (config.CLIENT_FEATURES_PRE_E12, config.E12_CLIENT_CANDIDATES),
+}
+
+
+def _fit_eval(train, val, features, name, params=None, folds=None):
+    """Train a LightGBM on TRAIN (CV early stopping), evaluate on VAL, save its metrics."""
+    pipeline, info = tr.train_model(features, "lgbm", train, params=params, folds=folds)
+    p_val = ev.predict_proba(pipeline, val, features)
+    metrics = ev.evaluate(val[config.TARGET], p_val)
+    gain = tr.feature_importance(pipeline)
+    metrics.update(features=list(features), n_features=len(features),
+                   cv_mean_auc=info["cv_mean_auc"], train_auc=info["train_auc"],
+                   train_minus_val_auc=info["train_auc"] - metrics["roc_auc"],
+                   top_feature=gain.index[0], top_feature_gain_share=float(gain.iloc[0] / gain.sum()),
+                   training=info)
+    ev.save_metrics(metrics, name)
+    return {"pipeline": pipeline, "p_val": p_val, "metrics": metrics, "features": list(features)}
+
+
+def run_e12(train, val):
+    """E12: LightGBM with vs without the new features, per list; pre-registered rule applied as written."""
+    y_val = val[config.TARGET].to_numpy()
+    out = {"experiment": "E12", "rule": ("kept if the mean 5-fold CV AUC on train increases AND the lower "
+                                         "bound of the paired bootstrap CI on validation is > 0"),
+           "lists": {}}
+    models = {}
+    for name, (reference, candidates) in E12_LISTS.items():
+        base = _fit_eval(train, val, reference, f"e12_lgbm__{name}__reference")
+        with_new = _fit_eval(train, val, list(reference) + list(candidates), f"e12_lgbm__{name}__with_new")
+        diff = ev.paired_bootstrap_auc_diff(y_val, with_new["p_val"], base["p_val"])
+        cv_gain = with_new["metrics"]["cv_mean_auc"] - base["metrics"]["cv_mean_auc"]
+        keep = bool(cv_gain > 0 and diff["ci_low"] > 0)
+        out["lists"][name] = {
+            "candidates": list(candidates),
+            "reference": {"n_features": len(reference), "cv_mean_auc": base["metrics"]["cv_mean_auc"],
+                          "val_auc": base["metrics"]["roc_auc"],
+                          "val_ci": [base["metrics"]["ci_low"], base["metrics"]["ci_high"]]},
+            "with_new": {"n_features": len(reference) + len(candidates),
+                         "cv_mean_auc": with_new["metrics"]["cv_mean_auc"],
+                         "val_auc": with_new["metrics"]["roc_auc"],
+                         "val_ci": [with_new["metrics"]["ci_low"], with_new["metrics"]["ci_high"]]},
+            "cv_auc_gain": cv_gain,
+            "val_auc_diff": diff,
+            "decision": "kept" if keep else "dropped",
+            "final_features": list(reference) + list(candidates) if keep else list(reference),
+        }
+        models[name] = {"reference": base, "with_new": with_new, "final": with_new if keep else base}
+    ev.save_metrics(out, "e12")
+    return out, models
+
+
+def run_e13(train, val, e12_models, n_trials=tuning.N_TRIALS):
+    """E13: Optuna tuning on the final E12 lists; tuned kept if validation AUC >= default."""
+    y_val = val[config.TARGET].to_numpy()
+    out = {"experiment": "E13", "n_trials": n_trials,
+           "rule": "tuned parameters kept if their validation AUC is >= that of the default parameters",
+           "lists": {}}
+    models, studies = {}, {}
+    for name, m in e12_models.items():
+        default = m["final"]
+        features = default["features"]
+        best_params, study, folds = tuning.tune(train, features, n_trials=n_trials)
+        tuned = _fit_eval(train, val, features, f"e13_lgbm__{name}__tuned", params=best_params, folds=folds)
+        diff = ev.paired_bootstrap_auc_diff(y_val, tuned["p_val"], default["p_val"])
+        keep = bool(tuned["metrics"]["roc_auc"] >= default["metrics"]["roc_auc"])
+        ev.save_metrics({"list": name, "best_params": best_params, "best_cv_auc": study.best_value,
+                         "best_trial": study.best_trial.number}, f"e13_best_params__{name}")
+        tuning.trials_table(study).to_csv(ev.METRICS_DIR / f"e13_trials__{name}.csv", index=False)
+        out["lists"][name] = {
+            "n_features": len(features),
+            "default": {"cv_mean_auc": default["metrics"]["cv_mean_auc"], "val_auc": default["metrics"]["roc_auc"],
+                        "val_ci": [default["metrics"]["ci_low"], default["metrics"]["ci_high"]],
+                        "n_estimators": default["metrics"]["training"]["n_estimators"]},
+            "tuned": {"best_cv_auc_optuna": study.best_value, "cv_mean_auc": tuned["metrics"]["cv_mean_auc"],
+                      "val_auc": tuned["metrics"]["roc_auc"],
+                      "val_ci": [tuned["metrics"]["ci_low"], tuned["metrics"]["ci_high"]],
+                      "n_estimators": tuned["metrics"]["training"]["n_estimators"], "params": best_params},
+            "val_auc_diff_tuned_minus_default": diff,
+            "decision": "tuned parameters kept" if keep else "default parameters kept",
+        }
+        final = tuned if keep else default
+        tr.save_model(final["pipeline"], f"final__lgbm__{name}")
+        models[name] = {"default": default, "tuned": tuned, "final": final}
+        studies[name] = study
+    # E2 re-measured with the two tuned bank models (and with the retained ones if different)
+    e2 = {"experiment": "E2 updated after E13",
+          "tuned_models": ev.paired_bootstrap_auc_diff(
+              y_val, models["bank_with_history"]["tuned"]["p_val"], models["bank_no_history"]["tuned"]["p_val"]),
+          "tuned_with_history_auc": models["bank_with_history"]["tuned"]["metrics"]["roc_auc"],
+          "tuned_no_history_auc": models["bank_no_history"]["tuned"]["metrics"]["roc_auc"]}
+    if any(models[n]["final"] is not models[n]["tuned"] for n in ("bank_with_history", "bank_no_history")):
+        e2["retained_models"] = ev.paired_bootstrap_auc_diff(
+            y_val, models["bank_with_history"]["final"]["p_val"], models["bank_no_history"]["final"]["p_val"])
+    out["e2_updated"] = e2
+    ev.save_metrics(e2, "e2_after_e13")
+    ev.save_metrics(out, "e13")
+    return out, models, studies
+
+
+def session3_predictions(train, val, keys=("lgbm__bank_no_history", "lgbm__bank_with_history",
+                                           "lgbm__client_no_pricing")):
+    """Validation predictions of the session 3 models (before the PHONE_CHANGE_YEARS removal).
+
+    Loads models/<key>.joblib when present, otherwise retrains it with the frozen session 3
+    list. Nothing is saved: the recorded session 3 metrics stay untouched.
+    """
+    import joblib
+    preds = {}
+    for key in keys:
+        set_name, model_type = MODELS[key]
+        features = SETS[set_name]
+        path = tr.MODELS_DIR / f"{key}.joblib"
+        pipeline = joblib.load(path) if path.exists() else tr.train_model(features, model_type, train)[0]
+        preds[key] = ev.predict_proba(pipeline, val, features)
+    return preds

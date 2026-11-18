@@ -1,0 +1,12 @@
+{
+  "experiment": "E2 updated after E13",
+  "tuned_models": {
+    "auc_diff": 0.057211107301207376,
+    "ci_low": 0.050922215881032934,
+    "ci_high": 0.06440125272226888,
+    "share_of_resamples_above_0": 1.0,
+    "n_bootstrap": 1000
+  },
+  "tuned_with_history_auc": 0.7663175260761483,
+  "tuned_no_history_auc": 0.709106418774941
+}

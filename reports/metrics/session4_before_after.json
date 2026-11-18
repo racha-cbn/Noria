@@ -1,0 +1,35 @@
+[
+  {
+    "list": "bank_no_history",
+    "session 3": 0.7093,
+    "after preliminary decision": 0.7058,
+    "after E12": 0.7058,
+    "after E13 (final)": 0.7091,
+    "gain: preliminary decision": "-0.0036 [-0.0060, -0.0011]",
+    "gain: E12": "+0.0000 [+0.0000, +0.0000]",
+    "gain: E13": "+0.0033 [+0.0012, +0.0053]",
+    "total gain vs session 3": "-0.0002 [-0.0030, +0.0027]"
+  },
+  {
+    "list": "bank_with_history",
+    "session 3": 0.7663,
+    "after preliminary decision": 0.7641,
+    "after E12": 0.7641,
+    "after E13 (final)": 0.7663,
+    "gain: preliminary decision": "-0.0022 [-0.0038, -0.0005]",
+    "gain: E12": "+0.0000 [+0.0000, +0.0000]",
+    "gain: E13": "+0.0023 [+0.0008, +0.0038]",
+    "total gain vs session 3": "+0.0001 [-0.0016, +0.0017]"
+  },
+  {
+    "list": "client",
+    "session 3": 0.6189,
+    "after preliminary decision": 0.6189,
+    "after E12": 0.6189,
+    "after E13 (final)": 0.6207,
+    "gain: preliminary decision": "+0.0000 [+0.0000, +0.0000]",
+    "gain: E12": "+0.0000 [+0.0000, +0.0000]",
+    "gain: E13": "+0.0017 [-0.0001, +0.0035]",
+    "total gain vs session 3": "+0.0017 [-0.0001, +0.0035]"
+  }
+]

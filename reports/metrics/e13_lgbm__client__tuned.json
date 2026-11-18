@@ -1,0 +1,75 @@
+{
+  "roc_auc": 0.6206568487041029,
+  "ci_low": 0.6107077165152431,
+  "ci_high": 0.6306824322084041,
+  "n_bootstrap": 1000,
+  "pr_auc": 0.12653782859572413,
+  "rows": 41735,
+  "positives": 3483,
+  "positive_rate": 0.08345513358092728,
+  "features": [
+    "AGE_YEARS",
+    "NAME_FAMILY_STATUS",
+    "CNT_CHILDREN",
+    "NAME_INCOME_TYPE",
+    "EMPLOYMENT_YEARS",
+    "IS_PENSIONER",
+    "CREDIT_INCOME_RATIO"
+  ],
+  "n_features": 7,
+  "cv_mean_auc": 0.6205769999329844,
+  "train_auc": 0.6294257078566066,
+  "train_minus_val_auc": 0.008768859152503694,
+  "top_feature": "EMPLOYMENT_YEARS",
+  "top_feature_gain_share": 0.3725356820166296,
+  "training": {
+    "model_type": "lgbm",
+    "n_features": 7,
+    "train_rows": 194762,
+    "n_estimators": 218,
+    "cv_folds": [
+      {
+        "fold": 1,
+        "best_iteration": 253,
+        "fold_auc": 0.6162951442561698
+      },
+      {
+        "fold": 2,
+        "best_iteration": 170,
+        "fold_auc": 0.6280728211230594
+      },
+      {
+        "fold": 3,
+        "best_iteration": 153,
+        "fold_auc": 0.6194256475035905
+      },
+      {
+        "fold": 4,
+        "best_iteration": 310,
+        "fold_auc": 0.6249146472706241
+      },
+      {
+        "fold": 5,
+        "best_iteration": 206,
+        "fold_auc": 0.6141767395114784
+      }
+    ],
+    "cv_mean_auc": 0.6205769999329844,
+    "params": {
+      "num_leaves": 33,
+      "max_depth": 3,
+      "learning_rate": 0.041962154454777856,
+      "min_child_samples": 41,
+      "subsample": 0.7496989647266433,
+      "colsample_bytree": 0.5566352507698643,
+      "reg_alpha": 4.607455324992111,
+      "reg_lambda": 0.0025197751822650253,
+      "subsample_freq": 1,
+      "class_weight": "balanced",
+      "random_state": 42,
+      "n_jobs": -1,
+      "verbose": -1
+    },
+    "train_auc": 0.6294257078566066
+  }
+}

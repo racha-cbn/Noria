@@ -220,12 +220,35 @@ HISTORY_FEATURES = [
     "DEF_60_CNT_SOCIAL_CIRCLE",
 ]
 
+# --- Experiment E12 candidates (session 4) ----------------------------------
+# Contact flags summed into CONTACT_COUNT.
+CONTACT_FLAGS = ["FLAG_MOBIL", "FLAG_EMP_PHONE", "FLAG_WORK_PHONE", "FLAG_CONT_MOBILE", "FLAG_PHONE", "FLAG_EMAIL"]
+E12_BANK_CANDIDATES = [
+    "DOC_COUNT",               # number of documents provided
+    "CONTACT_COUNT",           # number of contact means (phones, e-mail)
+    "AGE_AT_EMPLOYMENT_START", # AGE_YEARS - EMPLOYMENT_YEARS
+    "CHILDREN_RATIO",          # CNT_CHILDREN / CNT_FAM_MEMBERS
+    "ID_PUBLISH_AGE_RATIO",    # ID_PUBLISH_YEARS / AGE_YEARS
+    "REGISTRATION_AGE_RATIO",  # REGISTRATION_YEARS / AGE_YEARS
+]
+# Client: only the candidates computable from the public form. Age and employment length are
+# in the form; the family size is deducible (CNT_FAM_MEMBERS = 1 + spouse + CNT_CHILDREN on 100%
+# of train rows, spouse = family status "Married" or "Civil marriage").
+E12_CLIENT_CANDIDATES = ["AGE_AT_EMPLOYMENT_START", "CHILDREN_RATIO"]
+# E12 result: no candidate kept in any list (pre-registered rule, see docs/experiments.md).
+# The columns stay in the prepared data but are not in any feature list.
+
 # Raw monetary columns: must never appear in a feature set (currency independence).
 MONETARY_COLUMNS = ["AMT_INCOME_TOTAL", "AMT_CREDIT", "AMT_ANNUITY", "AMT_GOODS_PRICE", "INCOME_PER_PERSON"]
 
 # Bank model with history: reference model, to measure what the history adds.
 BANK_WITH_HISTORY_FEATURES = BANK_NO_HISTORY_FEATURES + HISTORY_FEATURES
 BANK_WITH_HISTORY_FEATURES_S3 = BANK_NO_HISTORY_FEATURES_S3 + HISTORY_FEATURES  # as in session 3
+
+# Lists before E12 (reference models of E12, kept for reproducibility of notebook 04).
+CLIENT_FEATURES_PRE_E12 = list(CLIENT_FEATURES)
+BANK_NO_HISTORY_FEATURES_PRE_E12 = list(BANK_NO_HISTORY_FEATURES)
+BANK_WITH_HISTORY_FEATURES_PRE_E12 = list(BANK_WITH_HISTORY_FEATURES)
 
 FEATURE_SETS = {
     "client": CLIENT_FEATURES,

@@ -55,57 +55,78 @@ def sanitize_feature_names(X):
     return X
 
 
-def _make_estimator(model_type, n_estimators=None):
+def _make_estimator(model_type, n_estimators=None, params=None):
+    """params: LightGBM parameters (defaults to LGBM_PARAMS); ignored for logreg."""
     if model_type == "logreg":
         return LogisticRegression(**LOGREG_PARAMS)
     if model_type == "lgbm":
-        return lgb.LGBMClassifier(n_estimators=n_estimators or MAX_TREES, **LGBM_PARAMS)
+        return lgb.LGBMClassifier(n_estimators=n_estimators or MAX_TREES, **(params or LGBM_PARAMS))
     raise ValueError(f"unknown model_type: {model_type!r}")
 
 
-def build_pipeline(X_train, features, model_type, n_estimators=None):
+def build_pipeline(X_train, features, model_type, n_estimators=None, params=None):
     """Unfitted pipeline: preprocessing (+ scaling for logreg only) -> estimator."""
     return Pipeline([
         ("preprocess", build_preprocessor(X_train, features, scale=(model_type == "logreg"))),
         ("names", FunctionTransformer(sanitize_feature_names)),
-        ("model", _make_estimator(model_type, n_estimators)),
+        ("model", _make_estimator(model_type, n_estimators, params)),
     ])
 
 
-def select_n_estimators(train, features):
-    """Number of trees by early stopping in a 5-fold stratified CV on the TRAIN set.
+def prepare_cv_folds(train, features):
+    """The 5 stratified CV folds of the TRAIN set, already preprocessed.
 
-    In each fold the preprocessing is fitted on the fold's training part only,
-    and early stopping watches the AUC of the fold's held-out part.
-    Returns (n_estimators, per-fold details).
+    In each fold the preprocessing is fitted on the fold's training part only.
+    Returns a list of (X_fit, y_fit, X_stop, y_stop); reusable across parameter sets.
     """
     X, y = train[features], train[config.TARGET]
     folds = StratifiedKFold(n_splits=CV_FOLDS, shuffle=True, random_state=config.RANDOM_STATE)
-    details = []
-    for k, (fit_idx, stop_idx) in enumerate(folds.split(X, y), start=1):
+    prepared = []
+    for fit_idx, stop_idx in folds.split(X, y):
         X_fit, y_fit = X.iloc[fit_idx], y.iloc[fit_idx]
         X_stop, y_stop = X.iloc[stop_idx], y.iloc[stop_idx]
         prep = Pipeline([
             ("preprocess", build_preprocessor(X_fit, features, scale=False)),
             ("names", FunctionTransformer(sanitize_feature_names)),
         ]).fit(X_fit)
-        model = _make_estimator("lgbm").fit(
-            prep.transform(X_fit), y_fit,
-            eval_X=(prep.transform(X_stop),), eval_y=(y_stop,),
+        prepared.append((prep.transform(X_fit), y_fit, prep.transform(X_stop), y_stop))
+    return prepared
+
+
+def cv_early_stopping(folds, params=None):
+    """Fit LightGBM on each prepared fold with early stopping on the fold's held-out AUC.
+
+    Returns per-fold details: best iteration and held-out AUC at that iteration.
+    """
+    details = []
+    for k, (X_fit, y_fit, X_stop, y_stop) in enumerate(folds, start=1):
+        model = _make_estimator("lgbm", params=params).fit(
+            X_fit, y_fit,
+            eval_X=(X_stop,), eval_y=(y_stop,),
             eval_metric="auc",
             callbacks=[lgb.early_stopping(EARLY_STOPPING_ROUNDS, verbose=False)],
         )
         details.append({"fold": k, "best_iteration": int(model.best_iteration_),
                         "fold_auc": float(model.best_score_["valid_0"]["auc"])})
+    return details
+
+
+def select_n_estimators(train, features, params=None, folds=None):
+    """Number of trees by early stopping in a 5-fold stratified CV on the TRAIN set.
+
+    Returns (n_estimators = mean best iteration over the folds, per-fold details).
+    """
+    details = cv_early_stopping(folds if folds is not None else prepare_cv_folds(train, features), params)
     n_estimators = int(round(np.mean([d["best_iteration"] for d in details])))
     return n_estimators, details
 
 
-def train_model(feature_list, model_type, train=None):
+def train_model(feature_list, model_type, train=None, params=None, folds=None):
     """Train `model_type` ("logreg" or "lgbm") on `feature_list`, on the TRAIN set only.
 
     lgbm: the number of trees comes from select_n_estimators (CV on train),
     then the model is refitted on the whole train set with that number.
+    params: LightGBM parameters (default LGBM_PARAMS); folds: optional prepared CV folds.
     Returns (fitted pipeline, info dict).
     """
     if train is None:
@@ -114,10 +135,11 @@ def train_model(feature_list, model_type, train=None):
     info = {"model_type": model_type, "n_features": len(features), "train_rows": len(train)}
     n_estimators = None
     if model_type == "lgbm":
-        n_estimators, cv = select_n_estimators(train, features)
+        n_estimators, cv = select_n_estimators(train, features, params, folds)
         info.update(n_estimators=n_estimators, cv_folds=cv,
-                    cv_mean_auc=float(np.mean([d["fold_auc"] for d in cv])))
-    pipeline = build_pipeline(train, features, model_type, n_estimators)
+                    cv_mean_auc=float(np.mean([d["fold_auc"] for d in cv])),
+                    params=dict(params or LGBM_PARAMS))
+    pipeline = build_pipeline(train, features, model_type, n_estimators, params)
     pipeline.fit(train[features], train[config.TARGET])
     info["train_auc"] = float(roc_auc_score(
         train[config.TARGET], pipeline.predict_proba(train[features])[:, 1]))
@@ -138,3 +160,13 @@ def save_model(pipeline, name):
     path = MODELS_DIR / f"{name}.joblib"
     joblib.dump(pipeline, path)
     return path
+
+
+def best_params(list_name):
+    """LightGBM parameters retained for a feature list after E13 (tuned if kept, else defaults)."""
+    import json
+    metrics_dir = config.ROOT / "reports" / "metrics"
+    e13 = json.loads((metrics_dir / "e13.json").read_text(encoding="utf-8"))
+    if e13["lists"][list_name]["decision"] == "tuned parameters kept":
+        return json.loads((metrics_dir / f"e13_best_params__{list_name}.json").read_text(encoding="utf-8"))["best_params"]
+    return dict(LGBM_PARAMS)

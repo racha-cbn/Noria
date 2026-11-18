@@ -15,7 +15,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | ID | Experiment | Status |
 |---|---|---|
 | E1 | Baseline: logistic regression vs LightGBM | done |
-| E2 | Cost of the history (main contribution) | done |
+| E2 | Cost of the history (main contribution) | done (updated after E13) |
 | E3 | Client model viability | done (superseded by E10) |
 | E4 | Region features | planned |
 | E5 | Real no-history profiles | planned |
@@ -25,8 +25,8 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E9 (bonus) | Fairness audit | planned |
 | E10 | Client model without the pricing signal | done |
 | E11 | Weight of the pricing signal in the bank model | done |
-| E12 | New features | planned |
-| E13 | Hyperparameter tuning (Optuna) | planned |
+| E12 | New features | done |
+| E13 | Hyperparameter tuning (Optuna) | done |
 
 ---
 
@@ -57,6 +57,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (session 3, 18/11/2026) |
 | **Result** | Validation AUC: with history **0.7663** [0.7579, 0.7742] vs without history **0.7093** [0.6993, 0.7184]. Gap with − without: **+0.0569**, paired bootstrap 95% CI [+0.0502, +0.0647] (1,000 resamples, same resamples for both models). PR-AUC 0.2592 vs 0.1947. Details: `reports/metrics/e2.json`, notebook 03 |
 | **Decision taken** | Measurement reported (no decision rule): losing the credit history costs about 0.057 AUC |
+| **Updated after E13** | With the two tuned bank models (session 4 lists, `PHONE_CHANGE_YEARS` removed): with history 0.7663 vs without history 0.7091, gap **+0.0572**, paired bootstrap 95% CI [+0.0509, +0.0644]. The original result above is unchanged. Details: `reports/metrics/e2_after_e13.json` |
 
 ---
 
@@ -205,9 +206,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | LightGBM with vs without the new features, for `BANK_NO_HISTORY_FEATURES`, `BANK_WITH_HISTORY_FEATURES` and `CLIENT_FEATURES`. Candidates (deterministic, no raw amount, no history, no regional rating, verifiable by an advisor): `DOC_COUNT` (sum of the `FLAG_DOCUMENT_*`), `CONTACT_COUNT` (sum of the contact flags: `FLAG_MOBIL`, `FLAG_EMP_PHONE`, `FLAG_WORK_PHONE`, `FLAG_CONT_MOBILE`, `FLAG_PHONE`, `FLAG_EMAIL`), `AGE_AT_EMPLOYMENT_START` (`AGE_YEARS` − `EMPLOYMENT_YEARS`), `CHILDREN_RATIO` (`CNT_CHILDREN` / `CNT_FAM_MEMBERS`), `ID_PUBLISH_AGE_RATIO` and `REGISTRATION_AGE_RATIO` (`ID_PUBLISH_YEARS` and `REGISTRATION_YEARS` divided by `AGE_YEARS`). Bank lists: all six candidates. Client list: only the candidates computable from the public form, i.e. `AGE_AT_EMPLOYMENT_START` (age and employment length are in the form) and `CHILDREN_RATIO` (the family size is deducible from the form: `CNT_FAM_MEMBERS` = 1 + spouse (`Married` or `Civil marriage`) + `CNT_CHILDREN` on 100% of train rows, checked before this registration). The reference models "without new features" are re-measured with the lists corrected by the session 4 preliminary decision (`PHONE_CHANGE_YEARS` removed). Same protocol as E1-E3 (default LightGBM parameters, early stopping in a 5-fold stratified CV on train) |
 | **Metric** | Mean 5-fold CV AUC on train, and validation AUC difference with − without (paired bootstrap 95% CI, 1,000 resamples) |
 | **Decision rule (fixed in advance)** | For each list, the new features are kept if the mean 5-fold CV AUC on train increases **and** the lower bound of the paired bootstrap CI on validation is > 0. Otherwise they are dropped for that list |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 4, 18/11/2026) |
+| **Result** | Reference lists after the preliminary decision. Bank without history (52 → 58 features): mean CV AUC 0.7005 → 0.6999 (−0.0006); validation 0.7058 → 0.7056, paired difference −0.0002 [−0.0023, +0.0019]. Bank with history (65 → 71): CV 0.7615 → 0.7617 (+0.0002); validation 0.7641 → 0.7652, +0.0011 [−0.0003, +0.0027]. Client (7 → 9): CV 0.6190 → 0.6188 (−0.0002); validation 0.6189 → 0.6190, +0.0001 [−0.0012, +0.0014]. The new features carry at most 2.82% of the gain in the bank models; in the client model `AGE_AT_EMPLOYMENT_START` carries 7.63% without improving the AUC. Details: `reports/metrics/e12.json`, notebook 04 section 1 |
+| **Decision taken** | **Dropped for all three lists** (rule applied as written: the CV AUC does not increase for bank without history and client; for bank with history the CV AUC increases but the CI lower bound is not > 0). Final lists unchanged: 52, 65 and 7 features |
 
 ---
 
@@ -220,6 +221,6 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | For each final list from E12: tuned parameters vs default parameters (`LGBM_PARAMS` in `src/train.py`). Optuna, TPE sampler with a fixed seed (42), 50 trials per list. Objective: mean AUC of a 5-fold stratified CV on the **train** set (never the validation set), early stopping kept. Search space: `num_leaves` 15-255 (log), `max_depth` 3-12, `learning_rate` 0.02-0.2 (log), `min_child_samples` 20-500 (log), `subsample` 0.5-1.0, `colsample_bytree` 0.3-1.0, `reg_alpha` 0.001-10 (log), `reg_lambda` 0.001-10 (log); `class_weight="balanced"` and `subsample_freq=1` fixed. The number of trees of the final model comes from the CV early stopping, as in E1-E3 |
 | **Metric** | Validation AUC (95% bootstrap CI) of the tuned vs default model, per list |
 | **Decision rule (fixed in advance)** | The tuned parameters are kept if their validation AUC is ≥ that of the default parameters; otherwise the default parameters are kept. Then E2 is re-measured with the two tuned bank models (paired bootstrap) and the updated gap is reported in E2, without overwriting E2's original result |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 4, 18/11/2026) |
+| **Result** | 50 trials per list, TPE seed 42, objective = mean 5-fold CV AUC on train. Bank without history: CV 0.7005 → 0.7048; validation default 0.7058 vs tuned **0.7091** [0.6990, 0.7177], difference +0.0033 [+0.0012, +0.0053]. Bank with history: CV 0.7615 → 0.7640; validation 0.7641 vs **0.7663** [0.7580, 0.7741], +0.0023 [+0.0008, +0.0038]. Client: CV 0.6190 → 0.6206; validation 0.6189 vs **0.6207** [0.6107, 0.6307], +0.0017 [−0.0001, +0.0035]. Best parameters: `reports/metrics/e13_best_params__*.json`; trial histories: `reports/metrics/e13_trials__*.csv`. E2 re-measured with the two tuned bank models: +0.0572 [+0.0509, +0.0644] (see E2). Details: `reports/metrics/e13.json`, notebook 04 section 2 |
+| **Decision taken** | Validation AUC tuned ≥ default for the three lists: **tuned parameters kept for all three** (rule applied as written). The client model stays below 0.65, so the E10 decision (kept with a stronger caution message) is unchanged |

@@ -1,0 +1,243 @@
+{
+  "experiment": "E12",
+  "rule": "kept if the mean 5-fold CV AUC on train increases AND the lower bound of the paired bootstrap CI on validation is > 0",
+  "lists": {
+    "bank_no_history": {
+      "candidates": [
+        "DOC_COUNT",
+        "CONTACT_COUNT",
+        "AGE_AT_EMPLOYMENT_START",
+        "CHILDREN_RATIO",
+        "ID_PUBLISH_AGE_RATIO",
+        "REGISTRATION_AGE_RATIO"
+      ],
+      "reference": {
+        "n_features": 52,
+        "cv_mean_auc": 0.7005133483290031,
+        "val_auc": 0.7057625903429781,
+        "val_ci": [
+          0.6959952685353661,
+          0.7148214517918294
+        ]
+      },
+      "with_new": {
+        "n_features": 58,
+        "cv_mean_auc": 0.6999402727364858,
+        "val_auc": 0.7055640790515677,
+        "val_ci": [
+          0.6956916474176426,
+          0.7147873736960974
+        ]
+      },
+      "cv_auc_gain": -0.0005730755925172915,
+      "val_auc_diff": {
+        "auc_diff": -0.00019851129141035262,
+        "ci_low": -0.002320590766799635,
+        "ci_high": 0.001859570275918712,
+        "share_of_resamples_above_0": 0.436,
+        "n_bootstrap": 1000
+      },
+      "decision": "dropped",
+      "final_features": [
+        "NAME_TYPE_SUITE",
+        "NAME_INCOME_TYPE",
+        "NAME_EDUCATION_TYPE",
+        "NAME_FAMILY_STATUS",
+        "NAME_HOUSING_TYPE",
+        "OCCUPATION_TYPE",
+        "ORGANIZATION_TYPE",
+        "FLAG_OWN_CAR",
+        "FLAG_OWN_REALTY",
+        "CNT_CHILDREN",
+        "CNT_FAM_MEMBERS",
+        "OWN_CAR_AGE",
+        "AGE_YEARS",
+        "EMPLOYMENT_YEARS",
+        "REGISTRATION_YEARS",
+        "ID_PUBLISH_YEARS",
+        "IS_PENSIONER",
+        "CREDIT_INCOME_RATIO",
+        "ANNUITY_INCOME_RATIO",
+        "CREDIT_TERM",
+        "GOODS_CREDIT_RATIO",
+        "EMPLOYMENT_AGE_RATIO",
+        "FLAG_MOBIL",
+        "FLAG_EMP_PHONE",
+        "FLAG_WORK_PHONE",
+        "FLAG_CONT_MOBILE",
+        "FLAG_PHONE",
+        "FLAG_EMAIL",
+        "REG_REGION_NOT_LIVE_REGION",
+        "REG_REGION_NOT_WORK_REGION",
+        "LIVE_REGION_NOT_WORK_REGION",
+        "REG_CITY_NOT_LIVE_CITY",
+        "REG_CITY_NOT_WORK_CITY",
+        "LIVE_CITY_NOT_WORK_CITY",
+        "FLAG_DOCUMENT_2",
+        "FLAG_DOCUMENT_3",
+        "FLAG_DOCUMENT_4",
+        "FLAG_DOCUMENT_5",
+        "FLAG_DOCUMENT_6",
+        "FLAG_DOCUMENT_8",
+        "FLAG_DOCUMENT_9",
+        "FLAG_DOCUMENT_11",
+        "FLAG_DOCUMENT_12",
+        "FLAG_DOCUMENT_13",
+        "FLAG_DOCUMENT_14",
+        "FLAG_DOCUMENT_15",
+        "FLAG_DOCUMENT_16",
+        "FLAG_DOCUMENT_17",
+        "FLAG_DOCUMENT_18",
+        "FLAG_DOCUMENT_19",
+        "FLAG_DOCUMENT_20",
+        "FLAG_DOCUMENT_21"
+      ]
+    },
+    "bank_with_history": {
+      "candidates": [
+        "DOC_COUNT",
+        "CONTACT_COUNT",
+        "AGE_AT_EMPLOYMENT_START",
+        "CHILDREN_RATIO",
+        "ID_PUBLISH_AGE_RATIO",
+        "REGISTRATION_AGE_RATIO"
+      ],
+      "reference": {
+        "n_features": 65,
+        "cv_mean_auc": 0.7614784321193975,
+        "val_auc": 0.7640645415090203,
+        "val_ci": [
+          0.7556448842714389,
+          0.7719962077986899
+        ]
+      },
+      "with_new": {
+        "n_features": 71,
+        "cv_mean_auc": 0.7617126763140305,
+        "val_auc": 0.7651994364464989,
+        "val_ci": [
+          0.756779597331147,
+          0.7729748967618894
+        ]
+      },
+      "cv_auc_gain": 0.00023424419463302648,
+      "val_auc_diff": {
+        "auc_diff": 0.0011348949374786477,
+        "ci_low": -0.00030875282254455295,
+        "ci_high": 0.002683590826028484,
+        "share_of_resamples_above_0": 0.935,
+        "n_bootstrap": 1000
+      },
+      "decision": "dropped",
+      "final_features": [
+        "NAME_TYPE_SUITE",
+        "NAME_INCOME_TYPE",
+        "NAME_EDUCATION_TYPE",
+        "NAME_FAMILY_STATUS",
+        "NAME_HOUSING_TYPE",
+        "OCCUPATION_TYPE",
+        "ORGANIZATION_TYPE",
+        "FLAG_OWN_CAR",
+        "FLAG_OWN_REALTY",
+        "CNT_CHILDREN",
+        "CNT_FAM_MEMBERS",
+        "OWN_CAR_AGE",
+        "AGE_YEARS",
+        "EMPLOYMENT_YEARS",
+        "REGISTRATION_YEARS",
+        "ID_PUBLISH_YEARS",
+        "IS_PENSIONER",
+        "CREDIT_INCOME_RATIO",
+        "ANNUITY_INCOME_RATIO",
+        "CREDIT_TERM",
+        "GOODS_CREDIT_RATIO",
+        "EMPLOYMENT_AGE_RATIO",
+        "FLAG_MOBIL",
+        "FLAG_EMP_PHONE",
+        "FLAG_WORK_PHONE",
+        "FLAG_CONT_MOBILE",
+        "FLAG_PHONE",
+        "FLAG_EMAIL",
+        "REG_REGION_NOT_LIVE_REGION",
+        "REG_REGION_NOT_WORK_REGION",
+        "LIVE_REGION_NOT_WORK_REGION",
+        "REG_CITY_NOT_LIVE_CITY",
+        "REG_CITY_NOT_WORK_CITY",
+        "LIVE_CITY_NOT_WORK_CITY",
+        "FLAG_DOCUMENT_2",
+        "FLAG_DOCUMENT_3",
+        "FLAG_DOCUMENT_4",
+        "FLAG_DOCUMENT_5",
+        "FLAG_DOCUMENT_6",
+        "FLAG_DOCUMENT_8",
+        "FLAG_DOCUMENT_9",
+        "FLAG_DOCUMENT_11",
+        "FLAG_DOCUMENT_12",
+        "FLAG_DOCUMENT_13",
+        "FLAG_DOCUMENT_14",
+        "FLAG_DOCUMENT_15",
+        "FLAG_DOCUMENT_16",
+        "FLAG_DOCUMENT_17",
+        "FLAG_DOCUMENT_18",
+        "FLAG_DOCUMENT_19",
+        "FLAG_DOCUMENT_20",
+        "FLAG_DOCUMENT_21",
+        "EXT_SOURCE_1",
+        "EXT_SOURCE_2",
+        "EXT_SOURCE_3",
+        "AMT_REQ_CREDIT_BUREAU_HOUR",
+        "AMT_REQ_CREDIT_BUREAU_DAY",
+        "AMT_REQ_CREDIT_BUREAU_WEEK",
+        "AMT_REQ_CREDIT_BUREAU_MON",
+        "AMT_REQ_CREDIT_BUREAU_QRT",
+        "AMT_REQ_CREDIT_BUREAU_YEAR",
+        "OBS_30_CNT_SOCIAL_CIRCLE",
+        "DEF_30_CNT_SOCIAL_CIRCLE",
+        "OBS_60_CNT_SOCIAL_CIRCLE",
+        "DEF_60_CNT_SOCIAL_CIRCLE"
+      ]
+    },
+    "client": {
+      "candidates": [
+        "AGE_AT_EMPLOYMENT_START",
+        "CHILDREN_RATIO"
+      ],
+      "reference": {
+        "n_features": 7,
+        "cv_mean_auc": 0.6189970674509434,
+        "val_auc": 0.6189375658870895,
+        "val_ci": [
+          0.6092205899336938,
+          0.6291462729269647
+        ]
+      },
+      "with_new": {
+        "n_features": 9,
+        "cv_mean_auc": 0.6188150072556395,
+        "val_auc": 0.6190479937975129,
+        "val_ci": [
+          0.6090887522361488,
+          0.6289484195473561
+        ]
+      },
+      "cv_auc_gain": -0.00018206019530386808,
+      "val_auc_diff": {
+        "auc_diff": 0.00011042791042337186,
+        "ci_low": -0.001231682917219215,
+        "ci_high": 0.0014455056975584937,
+        "share_of_resamples_above_0": 0.572,
+        "n_bootstrap": 1000
+      },
+      "decision": "dropped",
+      "final_features": [
+        "AGE_YEARS",
+        "NAME_FAMILY_STATUS",
+        "CNT_CHILDREN",
+        "NAME_INCOME_TYPE",
+        "EMPLOYMENT_YEARS",
+        "IS_PENSIONER",
+        "CREDIT_INCOME_RATIO"
+      ]
+    }
+  }
+}
