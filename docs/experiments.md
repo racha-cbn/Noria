@@ -18,17 +18,17 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E1 | Baseline: logistic regression vs LightGBM | done |
 | E2 | Cost of the history (main contribution) | done (updated after E13) |
 | E3 | Client model viability | done (superseded by E10) |
-| E4 | Region features | planned |
-| E5 | Real no-history profiles | planned |
-| E6 | Target population | planned |
+| E4 | Region features | done |
+| E5 | Real no-history profiles | done on validation (test pending) |
+| E6 | Target population | done |
 | E7 | Sensitivity to the assumed interest rate | cancelled (since E10) |
-| E8 | Calibration | planned |
-| E9 (bonus) | Fairness audit | planned |
+| E8 | Calibration | done |
+| E9 (bonus) | Fairness audit | done |
 | E10 | Client model without the pricing signal | done |
 | E11 | Weight of the pricing signal in the bank model | done |
 | E12 | New features | done |
 | E13 | Hyperparameter tuning (Optuna) | done |
-| E14 | Risk classes | planned |
+| E14 | Risk classes | done |
 
 ---
 
@@ -89,9 +89,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Metric** | AUC gain |
 | **Decision rule (fixed in advance)** | Whatever the result, they are not used in Noria (transferability and fairness); the measured gain is reported as a lead for a real bank |
 | **Protocol (pre-registered 18/11/2026, before running)** | Validation set. Final bank model without history (52 features, tuned parameters of E13) vs the same list + `REGION_FEATURES` (55 features) with the **same tuned parameters**, number of trees by early stopping in a 5-fold CV on train. AUC gain with a paired bootstrap 95% CI |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 5, 18/11/2026) |
+| **Result** | Validation AUC without `REGION_FEATURES` 0.7091 [0.6990, 0.7177] vs with them **0.7138** [0.7042, 0.7229] (55 features, tuned parameters, 463 trees). Gain **+0.0047**, paired bootstrap 95% CI [+0.0021, +0.0073]. Details: `reports/metrics/e4.json`, notebook 05 section 3 |
+| **Decision taken** | As pre-registered, **not used in Noria** (transferability and fairness); the +0.0047 gain is reported as a lead for a real bank with its own validated regional data |
 
 ---
 
@@ -105,9 +105,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Metric** | Performance on the subgroup vs overall |
 | **Decision rule (fixed in advance)** | None: this is a measurement to report |
 | **Protocol (pre-registered 18/11/2026, before running)** | Session 5 measures it on the **validation** set: validation clients whose `SK_ID_CURR` is absent from `data/raw/bureau.csv` vs all validation clients, for the bank model without history, the bank model with history and the client model (final session 4 models), AUC with 95% bootstrap CI. `bureau.csv` is only read to get its `SK_ID_CURR` list, never as a feature. **The final measurement on the test set will be made at the final-evaluation session** |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done on validation (session 5, 18/11/2026); test measurement pending (final-evaluation session) |
+| **Result** | Validation: 5,861 clients (14.0%) absent from `bureau.csv`, default rate 10.82% vs 7.94% for the others. AUC on this subgroup vs all validation clients: bank without history **0.7174** [0.6958, 0.7396] vs 0.7091; bank with history 0.7555 [0.7347, 0.7741] vs 0.7663; client 0.6240 [0.6001, 0.6474] vs 0.6207. The gap with − without history shrinks on these clients (≈ 0.038 vs 0.057 overall). Details: `reports/metrics/e5.json`, notebook 05 section 4 |
+| **Decision taken** | Measurement reported (no decision rule): the model without history performs at least as well on real no-history profiles. **The final measurement on the test set remains to be done at the final-evaluation session** |
 
 ---
 
@@ -121,9 +121,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Metric** | AUC-ROC per group |
 | **Decision rule (fixed in advance)** | None: this is a measurement to report |
 | **Protocol (pre-registered 18/11/2026, before running)** | Validation set, final session 4 models, bank without history and client. Groups: each `NAME_INCOME_TYPE` category, and age groups 20-25, 25-35, 35-45, 45-55, 55-70 plus the aggregate 20-35. Per group: rows, defaults, AUC with 95% bootstrap CI (1,000 resamples). A group with fewer than 50 defaults or fewer than 50 non-defaults is flagged **too small to conclude** |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 5, 18/11/2026) |
+| **Result** | Validation AUC [95% CI]. Bank without history (overall 0.7091): `Commercial associate` 0.6944 [0.6740, 0.7127], `Working` 0.7066, `State servant` 0.7044, `Pensioner` 0.6571; ages 20-25 0.6995, 25-35 0.7043, 35-45 0.6970, 45-55 0.6925, 55-70 0.6704, **20-35 0.7047** [0.6905, 0.7195]. Client (overall 0.6207): `Commercial associate` **0.5891** [0.5687, 0.6093], `Working` 0.6069, `State servant` 0.5687, `Pensioner` 0.5550; within each age group 0.578-0.592, **20-35 0.5921** [0.5752, 0.6091]. `Other` (6 rows) too small to conclude; every other group has ≥ 50 defaults and ≥ 50 non-defaults. Details: `reports/metrics/e6.json`, notebook 05 section 5 |
+| **Decision taken** | Measurement reported (no decision rule): the bank model stays usable for the target groups (0.69-0.71); the client model is **below 0.60** within `Commercial associate` (0.5891) and the 20-35 group (0.5921) |
 
 ---
 
@@ -152,9 +152,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Metric** | Brier score on the validation set (and the calibration curve) |
 | **Decision rule (fixed in advance)** | Keep the method with the best Brier score on the validation set |
 | **Protocol (pre-registered 18/11/2026, before running)** | Final session 4 models (52, 65 and 7 features, tuned parameters). The calibrators (isotonic regression and Platt scaling, i.e. a logistic regression on the log-odds of the raw score) are fitted on the **out-of-fold predictions of the train set** (5-fold stratified CV, `random_state = 42`, same parameters and number of trees as the final model), **never on the validation set**. They are then applied to the final model's validation predictions; calibration curves and Brier scores are computed on the validation set. The rule above is unchanged. Under the adoption rule (top of this file), calibrating at all is adopted only if the paired bootstrap CI of the Brier improvement of the selected method over the uncalibrated model has a lower bound > 0 |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 5, 18/11/2026) |
+| **Result** | Raw scores are far too high (mean 0.435 / 0.396 / 0.480 vs an observed rate of 0.0835, because of `class_weight="balanced"`). Validation Brier, uncalibrated / isotonic / Platt: bank without history 0.20732 / 0.07253 / **0.07251**; bank with history 0.18584 / 0.06906 / **0.069057**; client 0.23762 / 0.075384 / **0.075381**. Platt minus isotonic: at most 0.00002, paired CIs including 0 (e.g. [−0.000006, +0.000048]). Brier improvement of Platt over uncalibrated: +0.1348 [+0.1324, +0.1370], +0.1168 [+0.1145, +0.1191], +0.1622 [+0.1599, +0.1643]. Mean calibrated probability 0.0843 / 0.0843 / 0.0834. Details: `reports/metrics/e8.json`, notebook 05 section 1 |
+| **Decision taken** | **Platt selected for the three models** (best validation Brier, rule applied as written; the margin over isotonic is negligible). Calibration **adopted** under the adoption rule (CI lower bounds > 0). Calibrated models saved as `models/calibrated__lgbm__<list>.joblib` |
 
 ---
 
@@ -168,9 +168,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Metric** | Acceptance rates and error rates per group |
 | **Decision rule (fixed in advance)** | None: this is a measurement to report |
 | **Protocol (pre-registered 18/11/2026, before running)** | On the validation set, with the **calibrated** probabilities and the E14 classes, for the bank model without history and the client model. Acceptance = class "low" (< 5%). Positive = default (`TARGET = 1`); a client is predicted "risky" when not in class "low". Measures per group (Fairlearn `MetricFrame`): acceptance rate, false negative rate (defaulters placed in class "low", i.e. accepted) and false positive rate (non-defaulters not placed in class "low"), by `CODE_GENDER` and by age group (bins of E6) |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 5, 18/11/2026) |
+| **Result** | Acceptance = class "low"; validation; calibrated probabilities. Bank without history by sex: acceptance F **36.73%** vs M **28.27%**, false negative rate F 15.06% vs M 10.74%, false positive rate F 61.60% vs M 69.64%. By age: acceptance 10.00% (20-25), 18.98%, 31.28%, 36.72%, **52.72% (55-70)**; false positive rate from 88.66% to 46.04%. Client by sex: acceptance F 12.69% vs M 8.91%; by age: **0.00% (20-25)**, **0.42% (25-35)**, 6.20%, 14.70%, 27.29% (55-70). Observed validation default rates: F 7.16% vs M 10.63%, 20-25 13.14% vs 55-70 5.20%. Details: `reports/metrics/e9.json`, notebook 05 section 6 |
+| **Decision taken** | Measurement reported (no decision rule): gender is not a feature, but acceptance differs by sex (8.5 points in the bank model) and strongly by age, following the observed default rates through correlated variables; young applicants are almost never "favorable" in the client model |
 
 ---
 
@@ -243,6 +243,6 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | Classes defined on the **calibrated** probability of default (method selected in E8). Bank model without history: low < 5% → recommendation "accept"; medium 5-12% → "accept with conditions"; high ≥ 12% → "refuse" (recommendation only: the advisor decides). Client model: same thresholds → "favorable" / "to strengthen" / "fragile" |
 | **Metric** | On the validation set, per class: share of clients and actual default rate |
 | **Decision rule (fixed in advance)** | The thresholds are not modified after seeing the results. If one class contains more than 80% of the clients, or if the actual default rates do not increase from low to high, it is reported as a limitation (in the brief and, for the client, in the displayed message), without changing the thresholds |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (session 5, 18/11/2026) |
+| **Result** | Bank without history (Platt): low/accept **33.83%** of clients (actual default rate 3.25%), medium/accept with conditions **45.22%** (7.38%), high/refuse **20.94%** (18.66%). Client (Platt): favorable **11.40%** (4.50%), to strengthen **73.14%** (7.72%), fragile **15.47%** (14.16%). Details: `reports/metrics/e14.json`, notebook 05 section 2 |
+| **Decision taken** | Thresholds kept (5% / 12%). Default rates increase from low to high and no class exceeds 80% (largest: client "to strengthen", 73.14%): **no limitation triggered** by the rule |

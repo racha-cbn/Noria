@@ -1,0 +1,26 @@
+{
+  "experiment": "E4",
+  "n_features_with_region": 55,
+  "n_trees_with_region": 463,
+  "without_region": {
+    "roc_auc": 0.709106418774941,
+    "ci_low": 0.6990055909024223,
+    "ci_high": 0.7177178774422915,
+    "n_bootstrap": 1000
+  },
+  "with_region": {
+    "roc_auc": 0.713760888586018,
+    "ci_low": 0.7041679266489558,
+    "ci_high": 0.7229414184869034,
+    "n_bootstrap": 1000
+  },
+  "with_minus_without": {
+    "auc_diff": 0.004654469811077089,
+    "ci_low": 0.0020570762692201094,
+    "ci_high": 0.007304563530168783,
+    "share_of_resamples_above_0": 1.0,
+    "n_bootstrap": 1000
+  },
+  "rule": "not used in Noria whatever the result; gain reported as a lead for a real bank",
+  "decision": "REGION_FEATURES not used in Noria"
+}

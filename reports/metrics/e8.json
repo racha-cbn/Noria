@@ -1,0 +1,93 @@
+{
+  "experiment": "E8",
+  "rule": "keep the method with the best Brier score on validation; calibration adopted only if the Brier improvement over the uncalibrated model has a CI lower bound > 0",
+  "lists": {
+    "bank_no_history": {
+      "n_trees": 392,
+      "oof_auc_train": 0.7045330109886792,
+      "brier": {
+        "uncalibrated": 0.20731688399797388,
+        "isotonic": 0.07253039086699324,
+        "platt": 0.07250986502155742
+      },
+      "mean_predicted": {
+        "uncalibrated": 0.43488578730441413,
+        "isotonic": 0.08428276051951598,
+        "platt": 0.08430964494206312
+      },
+      "observed_default_rate": 0.08345513358092728,
+      "chosen_method": "platt",
+      "brier_uncalibrated_minus_chosen": {
+        "diff": 0.13480701897641645,
+        "ci_low": 0.13244307591549292,
+        "ci_high": 0.13697701060567116,
+        "n_bootstrap": 1000
+      },
+      "brier_isotonic_minus_platt": {
+        "diff": 2.0525845435825918e-05,
+        "ci_low": -6.418505508925046e-06,
+        "ci_high": 4.8090838203216487e-05,
+        "n_bootstrap": 1000
+      },
+      "calibration_adopted": true
+    },
+    "bank_with_history": {
+      "n_trees": 822,
+      "oof_auc_train": 0.7635712629835393,
+      "brier": {
+        "uncalibrated": 0.1858412378009227,
+        "isotonic": 0.06906034588121414,
+        "platt": 0.06905713640192113
+      },
+      "mean_predicted": {
+        "uncalibrated": 0.39613054229228495,
+        "isotonic": 0.08428504927379797,
+        "platt": 0.08429029950400811
+      },
+      "observed_default_rate": 0.08345513358092728,
+      "chosen_method": "platt",
+      "brier_uncalibrated_minus_chosen": {
+        "diff": 0.11678410139900158,
+        "ci_low": 0.11452457227496851,
+        "ci_high": 0.11907832729002771,
+        "n_bootstrap": 1000
+      },
+      "brier_isotonic_minus_platt": {
+        "diff": 3.209479293012074e-06,
+        "ci_low": -3.448692980219242e-05,
+        "ci_high": 3.908169457430553e-05,
+        "n_bootstrap": 1000
+      },
+      "calibration_adopted": true
+    },
+    "client": {
+      "n_trees": 218,
+      "oof_auc_train": 0.6199989357021287,
+      "brier": {
+        "uncalibrated": 0.2376190921799001,
+        "isotonic": 0.07538378660286604,
+        "platt": 0.07538141727345736
+      },
+      "mean_predicted": {
+        "uncalibrated": 0.4797849983943948,
+        "isotonic": 0.08329663000341228,
+        "platt": 0.08336748490932379
+      },
+      "observed_default_rate": 0.08345513358092728,
+      "chosen_method": "platt",
+      "brier_uncalibrated_minus_chosen": {
+        "diff": 0.16223767490644275,
+        "ci_low": 0.1598690114908172,
+        "ci_high": 0.16426731292465363,
+        "n_bootstrap": 1000
+      },
+      "brier_isotonic_minus_platt": {
+        "diff": 2.369329408682952e-06,
+        "ci_low": -3.197149552906058e-05,
+        "ci_high": 3.796095520960558e-05,
+        "n_bootstrap": 1000
+      },
+      "calibration_adopted": true
+    }
+  }
+}

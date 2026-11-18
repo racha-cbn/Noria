@@ -1,0 +1,88 @@
+{
+  "experiment": "E14",
+  "thresholds": {
+    "low": "< 0.05",
+    "medium": "0.05-0.12",
+    "high": ">= 0.12"
+  },
+  "lists": {
+    "bank_no_history": {
+      "method": "platt",
+      "classes": [
+        {
+          "class": "low",
+          "label": "accept",
+          "clients": 14121,
+          "defaults": 459,
+          "mean_predicted": 0.03334029086538245,
+          "share": 0.33834910746375946,
+          "default_rate": 0.032504780114722756
+        },
+        {
+          "class": "medium",
+          "label": "accept with conditions",
+          "clients": 18873,
+          "defaults": 1393,
+          "mean_predicted": 0.07762900595305623,
+          "share": 0.45221037498502453,
+          "default_rate": 0.07380914533990357
+        },
+        {
+          "class": "high",
+          "label": "refuse",
+          "clients": 8741,
+          "defaults": 1631,
+          "mean_predicted": 0.18107454009780438,
+          "share": 0.209440517551216,
+          "default_rate": 0.18659192312092437
+        }
+      ],
+      "checks": {
+        "max_class_share": 0.45221037498502453,
+        "class_over_80_percent": false,
+        "empty_classes": [],
+        "default_rates_increase": true,
+        "limitation": false
+      }
+    },
+    "client": {
+      "method": "platt",
+      "classes": [
+        {
+          "class": "low",
+          "label": "favorable",
+          "clients": 4757,
+          "defaults": 214,
+          "mean_predicted": 0.040612058868849166,
+          "share": 0.11398107104348867,
+          "default_rate": 0.04498633592600378
+        },
+        {
+          "class": "medium",
+          "label": "to strengthen",
+          "clients": 30523,
+          "defaults": 2355,
+          "mean_predicted": 0.07799469641246291,
+          "share": 0.7313525817659039,
+          "default_rate": 0.07715493234609966
+        },
+        {
+          "class": "high",
+          "label": "fragile",
+          "clients": 6455,
+          "defaults": 914,
+          "mean_predicted": 0.14028168862182921,
+          "share": 0.1546663471906074,
+          "default_rate": 0.1415956622773044
+        }
+      ],
+      "checks": {
+        "max_class_share": 0.7313525817659039,
+        "class_over_80_percent": false,
+        "empty_classes": [],
+        "default_rates_increase": true,
+        "limitation": false
+      }
+    }
+  }
+}

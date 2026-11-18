@@ -65,3 +65,14 @@ def save_metrics(metrics, name):
     path = METRICS_DIR / f"{name}.json"
     path.write_text(json.dumps(metrics, indent=2, sort_keys=False) + "\n", encoding="utf-8")
     return path
+
+
+def paired_bootstrap_metric_diff(y, p_a, p_b, metric, n_boot=N_BOOTSTRAP, seed=BOOTSTRAP_SEED):
+    """metric(a) - metric(b) with a 95% CI, both scored on the SAME resamples (any metric(y, p))."""
+    y, p_a, p_b = np.asarray(y), np.asarray(p_a), np.asarray(p_b)
+    diffs = [metric(y[i], p_a[i]) - metric(y[i], p_b[i])
+             for i in _bootstrap_indices(len(y), n_boot, seed) if 0 < y[i].sum() < len(i)]
+    return {"diff": float(metric(y, p_a) - metric(y, p_b)),
+            "ci_low": float(np.percentile(diffs, 2.5)),
+            "ci_high": float(np.percentile(diffs, 97.5)),
+            "n_bootstrap": len(diffs)}

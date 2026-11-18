@@ -1,0 +1,240 @@
+{
+  "experiment": "E6",
+  "min_class_count": 50,
+  "lists": {
+    "bank_no_history": {
+      "overall_auc": 0.709106418774941,
+      "income_type": [
+        {
+          "group": "Commercial associate",
+          "rows": 9642,
+          "defaults": 739,
+          "default_rate": 0.07664384982368803,
+          "too_small": false,
+          "roc_auc": 0.6944163049143247,
+          "ci_low": 0.6739864373139058,
+          "ci_high": 0.7126693040635852
+        },
+        {
+          "group": "Other",
+          "rows": 6,
+          "defaults": 2,
+          "default_rate": 0.3333333333333333,
+          "too_small": true,
+          "roc_auc": 0.5,
+          "ci_low": 0.0,
+          "ci_high": 1.0
+        },
+        {
+          "group": "Pensioner",
+          "rows": 7755,
+          "defaults": 417,
+          "default_rate": 0.053771760154738876,
+          "too_small": false,
+          "roc_auc": 0.6571191125595026,
+          "ci_low": 0.6292935504174167,
+          "ci_high": 0.6843439389361213
+        },
+        {
+          "group": "State servant",
+          "rows": 3058,
+          "defaults": 174,
+          "default_rate": 0.05689993459777633,
+          "too_small": false,
+          "roc_auc": 0.7043796929551868,
+          "ci_low": 0.6654405801786188,
+          "ci_high": 0.7464355642276866
+        },
+        {
+          "group": "Working",
+          "rows": 21274,
+          "defaults": 2151,
+          "default_rate": 0.10110933533891135,
+          "too_small": false,
+          "roc_auc": 0.7065605266043871,
+          "ci_low": 0.694999738797741,
+          "ci_high": 0.7182275659615202
+        }
+      ],
+      "age": [
+        {
+          "group": "20-25",
+          "rows": 1370,
+          "defaults": 180,
+          "default_rate": 0.13138686131386862,
+          "too_small": false,
+          "roc_auc": 0.6994864612511671,
+          "ci_low": 0.6593387399905217,
+          "ci_high": 0.7376887314311111
+        },
+        {
+          "group": "25-35",
+          "rows": 9783,
+          "defaults": 1093,
+          "default_rate": 0.11172441991209241,
+          "too_small": false,
+          "roc_auc": 0.7042518716763334,
+          "ci_low": 0.6875187292276758,
+          "ci_high": 0.7208121807779675
+        },
+        {
+          "group": "35-45",
+          "rows": 11505,
+          "defaults": 992,
+          "default_rate": 0.08622338113863538,
+          "too_small": false,
+          "roc_auc": 0.6970472234069646,
+          "ci_low": 0.6798265001310646,
+          "ci_high": 0.714362978081983
+        },
+        {
+          "group": "45-55",
+          "rows": 9558,
+          "defaults": 723,
+          "default_rate": 0.07564344005021971,
+          "too_small": false,
+          "roc_auc": 0.692461846625666,
+          "ci_low": 0.671456468269242,
+          "ci_high": 0.7136029025383158
+        },
+        {
+          "group": "55-70",
+          "rows": 9519,
+          "defaults": 495,
+          "default_rate": 0.05200126063662149,
+          "too_small": false,
+          "roc_auc": 0.6703958915395086,
+          "ci_low": 0.6451706613699231,
+          "ci_high": 0.6966291469409901
+        },
+        {
+          "group": "20-35 (aggregate)",
+          "rows": 11153,
+          "defaults": 1273,
+          "default_rate": 0.1141396933560477,
+          "too_small": false,
+          "roc_auc": 0.7047000772824563,
+          "ci_low": 0.6905005969706259,
+          "ci_high": 0.7195475807607334
+        }
+      ]
+    },
+    "client": {
+      "overall_auc": 0.6206568487041029,
+      "income_type": [
+        {
+          "group": "Commercial associate",
+          "rows": 9642,
+          "defaults": 739,
+          "default_rate": 0.07664384982368803,
+          "too_small": false,
+          "roc_auc": 0.5891224727429913,
+          "ci_low": 0.5686786962406498,
+          "ci_high": 0.609269602651017
+        },
+        {
+          "group": "Other",
+          "rows": 6,
+          "defaults": 2,
+          "default_rate": 0.3333333333333333,
+          "too_small": true,
+          "roc_auc": 0.125,
+          "ci_low": 0.0,
+          "ci_high": 0.6
+        },
+        {
+          "group": "Pensioner",
+          "rows": 7755,
+          "defaults": 417,
+          "default_rate": 0.053771760154738876,
+          "too_small": false,
+          "roc_auc": 0.5549772773767903,
+          "ci_low": 0.5278129716600627,
+          "ci_high": 0.5818894391501942
+        },
+        {
+          "group": "State servant",
+          "rows": 3058,
+          "defaults": 174,
+          "default_rate": 0.05689993459777633,
+          "too_small": false,
+          "roc_auc": 0.5686705884228482,
+          "ci_low": 0.5264930270392084,
+          "ci_high": 0.6132867879019175
+        },
+        {
+          "group": "Working",
+          "rows": 21274,
+          "defaults": 2151,
+          "default_rate": 0.10110933533891135,
+          "too_small": false,
+          "roc_auc": 0.6069224280613794,
+          "ci_low": 0.5937198547995377,
+          "ci_high": 0.6193262109706626
+        }
+      ],
+      "age": [
+        {
+          "group": "20-25",
+          "rows": 1370,
+          "defaults": 180,
+          "default_rate": 0.13138686131386862,
+          "too_small": false,
+          "roc_auc": 0.5910107376283846,
+          "ci_low": 0.5467043626042356,
+          "ci_high": 0.6319124159161438
+        },
+        {
+          "group": "25-35",
+          "rows": 9783,
+          "defaults": 1093,
+          "default_rate": 0.11172441991209241,
+          "too_small": false,
+          "roc_auc": 0.5911035494205726,
+          "ci_low": 0.5740521886392204,
+          "ci_high": 0.60908451633556
+        },
+        {
+          "group": "35-45",
+          "rows": 11505,
+          "defaults": 992,
+          "default_rate": 0.08622338113863538,
+          "too_small": false,
+          "roc_auc": 0.5893615680892781,
+          "ci_low": 0.5694672151326794,
+          "ci_high": 0.6077314239587823
+        },
+        {
+          "group": "45-55",
+          "rows": 9558,
+          "defaults": 723,
+          "default_rate": 0.07564344005021971,
+          "too_small": false,
+          "roc_auc": 0.5864945234634348,
+          "ci_low": 0.5645518951200963,
+          "ci_high": 0.6072626690238925
+        },
+        {
+          "group": "55-70",
+          "rows": 9519,
+          "defaults": 495,
+          "default_rate": 0.05200126063662149,
+          "too_small": false,
+          "roc_auc": 0.577897995916613,
+          "ci_low": 0.5493120978491381,
+          "ci_high": 0.602495944640155
+        },
+        {
+          "group": "20-35 (aggregate)",
+          "rows": 11153,
+          "defaults": 1273,
+          "default_rate": 0.1141396933560477,
+          "too_small": false,
+          "roc_auc": 0.5920718297496111,
+          "ci_low": 0.5751937442965549,
+          "ci_high": 0.6091495669296446
+        }
+      ]
+    }
+  }
+}

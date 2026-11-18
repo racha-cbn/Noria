@@ -1,0 +1,70 @@
+{
+  "experiment": "E5",
+  "set": "validation",
+  "subgroup_rows": 5861,
+  "subgroup_share": 0.14043368875044926,
+  "subgroup_default_rate": 0.1081726667804129,
+  "others_default_rate": 0.07941684785638624,
+  "models": {
+    "bank_no_history": {
+      "all": {
+        "roc_auc": 0.709106418774941,
+        "ci_low": 0.6990055909024223,
+        "ci_high": 0.7177178774422915,
+        "n_bootstrap": 1000
+      },
+      "no_bureau_record": {
+        "roc_auc": 0.7173789454054083,
+        "ci_low": 0.6958289333345649,
+        "ci_high": 0.7395908191722584,
+        "n_bootstrap": 1000
+      },
+      "with_bureau_record": {
+        "roc_auc": 0.7051405422942137,
+        "ci_low": 0.6955017868980651,
+        "ci_high": 0.7150808264290927,
+        "n_bootstrap": 1000
+      }
+    },
+    "bank_with_history": {
+      "all": {
+        "roc_auc": 0.7663175260761483,
+        "ci_low": 0.7579523285524072,
+        "ci_high": 0.7741071332849357,
+        "n_bootstrap": 1000
+      },
+      "no_bureau_record": {
+        "roc_auc": 0.755504511578138,
+        "ci_low": 0.7347132547146192,
+        "ci_high": 0.7740720063209118,
+        "n_bootstrap": 1000
+      },
+      "with_bureau_record": {
+        "roc_auc": 0.766292051954429,
+        "ci_low": 0.7570070630354659,
+        "ci_high": 0.775162614738407,
+        "n_bootstrap": 1000
+      }
+    },
+    "client": {
+      "all": {
+        "roc_auc": 0.6206568487041029,
+        "ci_low": 0.6107077165152431,
+        "ci_high": 0.6306824322084041,
+        "n_bootstrap": 1000
+      },
+      "no_bureau_record": {
+        "roc_auc": 0.6240321878815348,
+        "ci_low": 0.600149652542096,
+        "ci_high": 0.6474146038749294,
+        "n_bootstrap": 1000
+      },
+      "with_bureau_record": {
+        "roc_auc": 0.6177781119794745,
+        "ci_low": 0.6073936756391415,
+        "ci_high": 0.6287673703725181,
+        "n_bootstrap": 1000
+      }
+    }
+  }
+}
