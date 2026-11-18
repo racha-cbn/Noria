@@ -145,3 +145,59 @@ def run_e9(val, models):
                                         "max_gap_between_groups": gaps}
     ev.save_metrics(out, "e9")
     return out, frames
+
+
+def _platt_probs(train, val, pipeline, features, params):
+    """Platt calibration fitted on out-of-fold TRAIN predictions (E8 protocol), applied to validation."""
+    n_trees = pipeline.named_steps["model"].n_estimators
+    oof = calibration.oof_predictions(train, features, params, n_trees)
+    platt = calibration.PlattCalibrator().fit(oof, train[config.TARGET].to_numpy())
+    p_raw = ev.predict_proba(pipeline, val, features)
+    return p_raw, platt.predict(p_raw)
+
+
+def _classes_by_age(y, p_cal, age_groups):
+    """Share of favorable / to strengthen / fragile per age group, with the actual default rate per class."""
+    rows = []
+    for g in analysis.AGE_LABELS:
+        m = age_groups == g
+        table, _ = risk.class_table(y[m], p_cal[m], risk.CLIENT_CATEGORY)
+        for cls, r in table.iterrows():
+            rows.append({"age_group": g, "class": cls, "category": r["label"], "clients": int(r["clients"]),
+                         "share": float(r["share"]),
+                         "default_rate": None if np.isnan(r["default_rate"]) else float(r["default_rate"])})
+    return rows
+
+
+def run_e15(train, val, models):
+    """E15: client model with vs without AGE_YEARS (same tuned parameters, same Platt protocol, same thresholds)."""
+    y_val = val[config.TARGET].to_numpy()
+    params = tr.best_params("client")
+    with_age = config.CLIENT_FEATURES
+    without_age = [f for f in with_age if f != "AGE_YEARS"]
+    pipe_with = models["client"]["pipeline"]
+    pipe_without, info = tr.train_model(without_age, "lgbm", train, params=params)
+    p_raw_with, p_cal_with = _platt_probs(train, val, pipe_with, with_age, params)
+    p_raw_without, p_cal_without = _platt_probs(train, val, pipe_without, without_age, params)
+
+    ages = val["AGE_YEARS"].to_numpy()
+    groups = {"all": np.ones(len(val), dtype=bool), "20-35": (ages >= 20) & (ages < 35),
+              "Commercial associate": (val["NAME_INCOME_TYPE"] == "Commercial associate").to_numpy()}
+    auc = {}
+    for g, m in groups.items():
+        auc[g] = {"with_age": ev.bootstrap_auc(y_val[m], p_raw_with[m]),
+                  "without_age": ev.bootstrap_auc(y_val[m], p_raw_without[m]),
+                  "with_minus_without": ev.paired_bootstrap_auc_diff(y_val[m], p_raw_with[m], p_raw_without[m]),
+                  "rows": int(m.sum()), "defaults": int(y_val[m].sum())}
+    age_groups = analysis.age_group(val["AGE_YEARS"]).astype(str).to_numpy()
+    overall_classes = {k: risk.class_table(y_val, p, risk.CLIENT_CATEGORY)[0].reset_index().to_dict(orient="records")
+                       for k, p in [("with_age", p_cal_with), ("without_age", p_cal_without)]}
+    out = {"experiment": "E15", "features_with_age": list(with_age), "features_without_age": without_age,
+           "n_trees_with_age": int(pipe_with.named_steps["model"].n_estimators),
+           "n_trees_without_age": int(info["n_estimators"]),
+           "auc": auc, "classes_overall": overall_classes,
+           "classes_by_age": {"with_age": _classes_by_age(y_val, p_cal_with, age_groups),
+                              "without_age": _classes_by_age(y_val, p_cal_without, age_groups)},
+           "rule": "None: measurement to report (age is kept in CLIENT_FEATURES)"}
+    ev.save_metrics(out, "e15")
+    return out, {"with_age": p_cal_with, "without_age": p_cal_without}

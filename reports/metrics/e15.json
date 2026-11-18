@@ -1,0 +1,400 @@
+{
+  "experiment": "E15",
+  "features_with_age": [
+    "AGE_YEARS",
+    "NAME_FAMILY_STATUS",
+    "CNT_CHILDREN",
+    "NAME_INCOME_TYPE",
+    "EMPLOYMENT_YEARS",
+    "IS_PENSIONER",
+    "CREDIT_INCOME_RATIO"
+  ],
+  "features_without_age": [
+    "NAME_FAMILY_STATUS",
+    "CNT_CHILDREN",
+    "NAME_INCOME_TYPE",
+    "EMPLOYMENT_YEARS",
+    "IS_PENSIONER",
+    "CREDIT_INCOME_RATIO"
+  ],
+  "n_trees_with_age": 218,
+  "n_trees_without_age": 192,
+  "auc": {
+    "all": {
+      "with_age": {
+        "roc_auc": 0.6206568487041029,
+        "ci_low": 0.6107077165152431,
+        "ci_high": 0.6306824322084041,
+        "n_bootstrap": 1000
+      },
+      "without_age": {
+        "roc_auc": 0.61414846597037,
+        "ci_low": 0.6039100864759473,
+        "ci_high": 0.6243273686482409,
+        "n_bootstrap": 1000
+      },
+      "with_minus_without": {
+        "auc_diff": 0.006508382733732887,
+        "ci_low": 0.0035172377000073527,
+        "ci_high": 0.00965568152444991,
+        "share_of_resamples_above_0": 1.0,
+        "n_bootstrap": 1000
+      },
+      "rows": 41735,
+      "defaults": 3483
+    },
+    "20-35": {
+      "with_age": {
+        "roc_auc": 0.5920718297496111,
+        "ci_low": 0.5751937442965549,
+        "ci_high": 0.6091495669296446,
+        "n_bootstrap": 1000
+      },
+      "without_age": {
+        "roc_auc": 0.5902608203389615,
+        "ci_low": 0.57350985846871,
+        "ci_high": 0.6071019610987117,
+        "n_bootstrap": 1000
+      },
+      "with_minus_without": {
+        "auc_diff": 0.0018110094106496,
+        "ci_low": -0.0032483513739537447,
+        "ci_high": 0.006979915434155501,
+        "share_of_resamples_above_0": 0.766,
+        "n_bootstrap": 1000
+      },
+      "rows": 11153,
+      "defaults": 1273
+    },
+    "Commercial associate": {
+      "with_age": {
+        "roc_auc": 0.5891224727429913,
+        "ci_low": 0.5686786962406498,
+        "ci_high": 0.609269602651017,
+        "n_bootstrap": 1000
+      },
+      "without_age": {
+        "roc_auc": 0.5817927605555409,
+        "ci_low": 0.5608734853066528,
+        "ci_high": 0.6026619025207456,
+        "n_bootstrap": 1000
+      },
+      "with_minus_without": {
+        "auc_diff": 0.007329712187450488,
+        "ci_low": -0.0031314815969779833,
+        "ci_high": 0.01712835450773072,
+        "share_of_resamples_above_0": 0.913,
+        "n_bootstrap": 1000
+      },
+      "rows": 9642,
+      "defaults": 739
+    }
+  },
+  "classes_overall": {
+    "with_age": [
+      {
+        "class": "low",
+        "label": "favorable",
+        "clients": 4757,
+        "defaults": 214,
+        "mean_predicted": 0.040612058868849166,
+        "share": 0.11398107104348867,
+        "default_rate": 0.04498633592600378
+      },
+      {
+        "class": "medium",
+        "label": "to strengthen",
+        "clients": 30523,
+        "defaults": 2355,
+        "mean_predicted": 0.07799469641246291,
+        "share": 0.7313525817659039,
+        "default_rate": 0.07715493234609966
+      },
+      {
+        "class": "high",
+        "label": "fragile",
+        "clients": 6455,
+        "defaults": 914,
+        "mean_predicted": 0.14028168862182921,
+        "share": 0.1546663471906074,
+        "default_rate": 0.1415956622773044
+      }
+    ],
+    "without_age": [
+      {
+        "class": "low",
+        "label": "favorable",
+        "clients": 4117,
+        "defaults": 186,
+        "mean_predicted": 0.042482803998511065,
+        "share": 0.09864622019887384,
+        "default_rate": 0.04517852805440855
+      },
+      {
+        "class": "medium",
+        "label": "to strengthen",
+        "clients": 31494,
+        "defaults": 2426,
+        "mean_predicted": 0.07830097151869767,
+        "share": 0.754618425781718,
+        "default_rate": 0.0770305455007303
+      },
+      {
+        "class": "high",
+        "label": "fragile",
+        "clients": 6124,
+        "defaults": 871,
+        "mean_predicted": 0.1366561122220162,
+        "share": 0.14673535401940818,
+        "default_rate": 0.1422273024167211
+      }
+    ]
+  },
+  "classes_by_age": {
+    "with_age": [
+      {
+        "age_group": "20-25",
+        "class": "low",
+        "category": "favorable",
+        "clients": 0,
+        "share": 0.0,
+        "default_rate": null
+      },
+      {
+        "age_group": "20-25",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 552,
+        "share": 0.4029197080291971,
+        "default_rate": 0.09782608695652174
+      },
+      {
+        "age_group": "20-25",
+        "class": "high",
+        "category": "fragile",
+        "clients": 818,
+        "share": 0.5970802919708029,
+        "default_rate": 0.15403422982885084
+      },
+      {
+        "age_group": "25-35",
+        "class": "low",
+        "category": "favorable",
+        "clients": 41,
+        "share": 0.0041909434733721765,
+        "default_rate": 0.0
+      },
+      {
+        "age_group": "25-35",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 6040,
+        "share": 0.6173975263211694,
+        "default_rate": 0.09254966887417218
+      },
+      {
+        "age_group": "25-35",
+        "class": "high",
+        "category": "fragile",
+        "clients": 3702,
+        "share": 0.3784115302054584,
+        "default_rate": 0.14424635332252836
+      },
+      {
+        "age_group": "35-45",
+        "class": "low",
+        "category": "favorable",
+        "clients": 713,
+        "share": 0.061973055193394175,
+        "default_rate": 0.05750350631136045
+      },
+      {
+        "age_group": "35-45",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 9127,
+        "share": 0.7933072577140374,
+        "default_rate": 0.08053029472992221
+      },
+      {
+        "age_group": "35-45",
+        "class": "high",
+        "category": "fragile",
+        "clients": 1665,
+        "share": 0.14471968709256844,
+        "default_rate": 0.12972972972972974
+      },
+      {
+        "age_group": "45-55",
+        "class": "low",
+        "category": "favorable",
+        "clients": 1405,
+        "share": 0.14699727976564134,
+        "default_rate": 0.054804270462633455
+      },
+      {
+        "age_group": "45-55",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 7883,
+        "share": 0.8247541326637372,
+        "default_rate": 0.0771279969554738
+      },
+      {
+        "age_group": "45-55",
+        "class": "high",
+        "category": "fragile",
+        "clients": 270,
+        "share": 0.02824858757062147,
+        "default_rate": 0.14074074074074075
+      },
+      {
+        "age_group": "55-70",
+        "class": "low",
+        "category": "favorable",
+        "clients": 2598,
+        "share": 0.27292782855341946,
+        "default_rate": 0.03695150115473441
+      },
+      {
+        "age_group": "55-70",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 6921,
+        "share": 0.7270721714465805,
+        "default_rate": 0.0576506285218899
+      },
+      {
+        "age_group": "55-70",
+        "class": "high",
+        "category": "fragile",
+        "clients": 0,
+        "share": 0.0,
+        "default_rate": null
+      }
+    ],
+    "without_age": [
+      {
+        "age_group": "20-25",
+        "class": "low",
+        "category": "favorable",
+        "clients": 0,
+        "share": 0.0,
+        "default_rate": null
+      },
+      {
+        "age_group": "20-25",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 764,
+        "share": 0.5576642335766423,
+        "default_rate": 0.10471204188481675
+      },
+      {
+        "age_group": "20-25",
+        "class": "high",
+        "category": "fragile",
+        "clients": 606,
+        "share": 0.44233576642335765,
+        "default_rate": 0.16501650165016502
+      },
+      {
+        "age_group": "25-35",
+        "class": "low",
+        "category": "favorable",
+        "clients": 127,
+        "share": 0.012981702954104057,
+        "default_rate": 0.023622047244094488
+      },
+      {
+        "age_group": "25-35",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 7266,
+        "share": 0.7427169579883471,
+        "default_rate": 0.09661436829066887
+      },
+      {
+        "age_group": "25-35",
+        "class": "high",
+        "category": "fragile",
+        "clients": 2390,
+        "share": 0.2443013390575488,
+        "default_rate": 0.16234309623430962
+      },
+      {
+        "age_group": "35-45",
+        "class": "low",
+        "category": "favorable",
+        "clients": 824,
+        "share": 0.07162103433289874,
+        "default_rate": 0.05703883495145631
+      },
+      {
+        "age_group": "35-45",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 8852,
+        "share": 0.7694046066927422,
+        "default_rate": 0.08032083145051966
+      },
+      {
+        "age_group": "35-45",
+        "class": "high",
+        "category": "fragile",
+        "clients": 1829,
+        "share": 0.15897435897435896,
+        "default_rate": 0.12793876435210497
+      },
+      {
+        "age_group": "45-55",
+        "class": "low",
+        "category": "favorable",
+        "clients": 1261,
+        "share": 0.13193136639464323,
+        "default_rate": 0.05154639175257732
+      },
+      {
+        "age_group": "45-55",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 7217,
+        "share": 0.7550742833228709,
+        "default_rate": 0.07343771650270195
+      },
+      {
+        "age_group": "45-55",
+        "class": "high",
+        "category": "fragile",
+        "clients": 1080,
+        "share": 0.11299435028248588,
+        "default_rate": 0.11851851851851852
+      },
+      {
+        "age_group": "55-70",
+        "class": "low",
+        "category": "favorable",
+        "clients": 1905,
+        "share": 0.20012606366214938,
+        "default_rate": 0.03727034120734908
+      },
+      {
+        "age_group": "55-70",
+        "class": "medium",
+        "category": "to strengthen",
+        "clients": 7395,
+        "share": 0.7768673179955877,
+        "default_rate": 0.05449628127112914
+      },
+      {
+        "age_group": "55-70",
+        "class": "high",
+        "category": "fragile",
+        "clients": 219,
+        "share": 0.023006618342262843,
+        "default_rate": 0.0958904109589041
+      }
+    ]
+  },
+  "rule": "None: measurement to report (age is kept in CLIENT_FEATURES)"
+}

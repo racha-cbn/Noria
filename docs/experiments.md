@@ -29,7 +29,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E12 | New features | done |
 | E13 | Hyperparameter tuning (Optuna) | done |
 | E14 | Risk classes | done |
-| E15 | Cost and effect of removing age from the client model | planned |
+| E15 | Cost and effect of removing age from the client model | done |
 
 ---
 
@@ -259,6 +259,6 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | Current LightGBM client model (`CLIENT_FEATURES`, 7 features) vs the same without `AGE_YEARS` (6 features). Same tuned parameters as E13 (`e13_best_params__client.json`), number of trees by early stopping in a 5-fold CV on train, same Platt calibration (fitted on out-of-fold train predictions), same E14 thresholds (5% / 12%) |
 | **Metric** | On the validation set: overall AUC with 95% bootstrap CI and the paired bootstrap CI of the difference; AUC (95% CI) of the 20-35 group and of `Commercial associate`; share of favorable / to strengthen / fragile per age group (E6 bins), with the actual default rate per class |
 | **Decision rule (fixed in advance)** | None: this is a measurement to report. The decision to keep age in the client model is already taken (see the Decision log of the brief); `CLIENT_FEATURES` does not change |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (18/11/2026) |
+| **Result** | Overall validation AUC with age **0.6207** [0.6107, 0.6307] vs without age **0.6141** [0.6039, 0.6243]; paired difference with − without **+0.0065** [+0.0035, +0.0097]. 20-35 year-olds: 0.5921 vs 0.5903, +0.0018 [−0.0032, +0.0070]; `Commercial associate`: 0.5891 vs 0.5818, +0.0073 [−0.0031, +0.0171]. Categories (favorable / to strengthen / fragile), with vs without age: 20-25 0.00 / 40.29 / 59.71% vs 0.00 / 55.77 / 44.23%; 25-35 0.42 / 61.74 / 37.84% vs 1.30 / 74.27 / 24.43%; 55-70 27.29 / 72.71 / 0.00% vs 20.01 / 77.69 / 2.30%. Overall: 11.40 / 73.14 / 15.47% vs 9.86 / 75.46 / 14.67%, actual default rates per class nearly identical. Details: `reports/metrics/e15.json`, notebook 06 |
+| **Decision taken** | Measurement reported (no decision rule). Removing age would cost 0.0065 AUC and would **not** make young applicants "favorable" (20-25: 0.00% either way), since employment length carries most of the age gradient. `CLIENT_FEATURES` unchanged (age kept, decision taken beforehand) |
