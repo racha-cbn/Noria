@@ -88,6 +88,9 @@ def export(train):
                 "test": {"roc_auc": tm["roc_auc"], "pr_auc": tm["pr_auc"], "brier_calibrated": tm["brier_calibrated"]},
                 "validation": {"roc_auc": vm["roc_auc"], "pr_auc": vm["pr_auc"], "brier_calibrated": vm["brier_calibrated"]},
             },
+            "low_reliability_age_threshold": config.LOW_RELIABILITY_AGE_THRESHOLD,
+            "low_reliability_rule": ("show a stronger caution message when AGE_YEARS < low_reliability_age_threshold "
+                                     "(display rule decided after E16; the model output is unchanged)"),
             "model_card": "docs/model-card.md",
         }
         metadata_path(list_name).write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")

@@ -49,6 +49,11 @@ MISSING_LABEL = "Missing"
 # duration, so this rate never enters the score (E7, the sensitivity analysis, was cancelled).
 ASSUMED_ANNUAL_INTEREST_RATE = 0.10
 
+# Display rule decided AFTER the final evaluation (E16): below this age, both the client page and the
+# advisor page show a stronger caution message (test AUC for 20-25 year-olds: bank 0.635, client 0.517,
+# on a small group of 1,327 clients / 189 defaults). The models are not modified.
+LOW_RELIABILITY_AGE_THRESHOLD = 25
+
 # DAYS_* columns converted to positive years (new name: source column)
 YEARS_FROM_DAYS = {
     "AGE_YEARS": "DAYS_BIRTH",

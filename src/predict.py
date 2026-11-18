@@ -58,9 +58,12 @@ def predict(list_name, record, top_k=TOP_K):
     shap_df, base, X, margin = explain.explain(model.pipeline, df, model.features)
     contrib = shap_df.iloc[0]
     top = contrib.abs().sort_values(ascending=False).index[:top_k]
+    age = df["AGE_YEARS"].iloc[0]
     return {
         "model": meta["name"], "version": meta["version"],
         "probability": p, "class": cls, "label": meta["classes"]["labels"][cls],
+        # Display rule (after E16): stronger caution message below the age threshold; the score is unchanged.
+        "low_reliability_warning": bool(pd.notna(age) and age < meta["low_reliability_age_threshold"]),
         "raw_log_odds": float(margin[0]), "shap_base_value": base,
         "shap_contributions": {k: float(v) for k, v in contrib.items()},
         "top_factors": [{"feature": f, "shap": float(contrib[f]),

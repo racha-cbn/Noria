@@ -448,5 +448,7 @@
       "brier_calibrated": 0.07250986502155742
     }
   },
+  "low_reliability_age_threshold": 25,
+  "low_reliability_rule": "show a stronger caution message when AGE_YEARS < low_reliability_age_threshold (display rule decided after E16; the model output is unchanged)",
   "model_card": "docs/model-card.md"
 }
