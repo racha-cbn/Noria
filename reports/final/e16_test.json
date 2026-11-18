@@ -1,0 +1,641 @@
+{
+  "rows": 41735,
+  "defaults": 3483,
+  "default_rate": 0.08345513358092728,
+  "models": {
+    "bank_no_history": {
+      "roc_auc": {
+        "roc_auc": 0.7067002724786642,
+        "ci_low": 0.697904170958021,
+        "ci_high": 0.715599852393188,
+        "n_bootstrap": 1000
+      },
+      "pr_auc": 0.1878792642058184,
+      "brier_calibrated": 0.07273558488378355,
+      "mean_calibrated_p": 0.08398721325503715,
+      "calibration_curve": {
+        "mean_predicted": [
+          0.020016600007278024,
+          0.03225740985721953,
+          0.041600973796680665,
+          0.05077055994533934,
+          0.06069996960081443,
+          0.0720629908866006,
+          0.08692722863901031,
+          0.10866960023543498,
+          0.14337256597164935,
+          0.22348595730201373
+        ],
+        "observed": [
+          0.019405845711547676,
+          0.03187155523604122,
+          0.036655486344034496,
+          0.0503235082674335,
+          0.05318639195016771,
+          0.07836089144500359,
+          0.09249940091061587,
+          0.110924772400575,
+          0.13635274382937934,
+          0.22496406324868232
+        ]
+      }
+    },
+    "bank_with_history": {
+      "roc_auc": {
+        "roc_auc": 0.7657447495459715,
+        "ci_low": 0.7579360814080461,
+        "ci_high": 0.7740638996944079,
+        "n_bootstrap": 1000
+      },
+      "pr_auc": 0.2554629790630239,
+      "brier_calibrated": 0.0693360329603608,
+      "mean_calibrated_p": 0.08390739454223028,
+      "calibration_curve": {
+        "mean_predicted": [
+          0.010948874247860814,
+          0.020349610540779745,
+          0.028676667777525682,
+          0.03787521046506329,
+          0.04895750794547786,
+          0.06276729432403513,
+          0.08142245907117465,
+          0.10845797731247009,
+          0.15515737318681436,
+          0.28444612507311307
+        ],
+        "observed": [
+          0.009822712026832775,
+          0.019889767553318956,
+          0.02635361763296598,
+          0.03378864126527678,
+          0.05079060852898898,
+          0.06566019650131799,
+          0.07884016295231248,
+          0.11212266411116435,
+          0.14713635274382939,
+          0.29012937230474367
+        ]
+      }
+    },
+    "client": {
+      "roc_auc": {
+        "roc_auc": 0.6188437443829065,
+        "ci_low": 0.6090660521612872,
+        "ci_high": 0.6290302359204318,
+        "n_bootstrap": 1000
+      },
+      "pr_auc": 0.12462370598853406,
+      "brier_calibrated": 0.07544012085070491,
+      "mean_calibrated_p": 0.0836738920984414,
+      "calibration_curve": {
+        "mean_predicted": [
+          0.03971483470996438,
+          0.05242837393956762,
+          0.05748797915865794,
+          0.06353387133917808,
+          0.07210406050990244,
+          0.08176137563397132,
+          0.09269141281008207,
+          0.10566571481043736,
+          0.12219723916340128,
+          0.1491526796117907
+        ],
+        "observed": [
+          0.035936751317680884,
+          0.052480230050323505,
+          0.06013416387158601,
+          0.06470165348670022,
+          0.07570675610924772,
+          0.08291397076443806,
+          0.0901030433740714,
+          0.10110206037374221,
+          0.1250898634076204,
+          0.14638236703402013
+        ]
+      }
+    }
+  },
+  "e2_with_minus_without": {
+    "auc_diff": 0.05904447706730731,
+    "ci_low": 0.05266790554991876,
+    "ci_high": 0.06579298489236683,
+    "share_of_resamples_above_0": 1.0,
+    "n_bootstrap": 1000
+  },
+  "e14": {
+    "bank_no_history": {
+      "classes": [
+        {
+          "class": "low",
+          "label": "accept",
+          "clients": 14300,
+          "defaults": 449,
+          "mean_predicted": 0.03338257132616284,
+          "share": 0.34263807355936265,
+          "default_rate": 0.0313986013986014
+        },
+        {
+          "class": "medium",
+          "label": "accept with conditions",
+          "clients": 18694,
+          "defaults": 1478,
+          "mean_predicted": 0.07750139637618353,
+          "share": 0.44792140888942134,
+          "default_rate": 0.07906280089868407
+        },
+        {
+          "class": "high",
+          "label": "refuse",
+          "clients": 8741,
+          "defaults": 1556,
+          "mean_predicted": 0.18064574663979766,
+          "share": 0.209440517551216,
+          "default_rate": 0.1780116691454067
+        }
+      ],
+      "checks": {
+        "max_class_share": 0.44792140888942134,
+        "class_over_80_percent": false,
+        "empty_classes": [],
+        "default_rates_increase": true,
+        "limitation": false
+      }
+    },
+    "client": {
+      "classes": [
+        {
+          "class": "low",
+          "label": "favorable",
+          "clients": 4637,
+          "defaults": 175,
+          "mean_predicted": 0.04067634996129685,
+          "share": 0.1111057865101234,
+          "default_rate": 0.037739918050463665
+        },
+        {
+          "class": "medium",
+          "label": "to strengthen",
+          "clients": 30411,
+          "defaults": 2366,
+          "mean_predicted": 0.07773934260717492,
+          "share": 0.7286689828680963,
+          "default_rate": 0.07780079576469041
+        },
+        {
+          "class": "high",
+          "label": "fragile",
+          "clients": 6687,
+          "defaults": 942,
+          "mean_predicted": 0.14047891489922562,
+          "share": 0.1602252306217803,
+          "default_rate": 0.14087034544638852
+        }
+      ],
+      "checks": {
+        "max_class_share": 0.7286689828680963,
+        "class_over_80_percent": false,
+        "empty_classes": [],
+        "default_rates_increase": true,
+        "limitation": false
+      }
+    }
+  },
+  "e5": {
+    "subgroup_rows": 5880,
+    "subgroup_share": 0.14088894213489878,
+    "subgroup_default_rate": 0.10255102040816326,
+    "others_default_rate": 0.0803235253102775,
+    "models": {
+      "bank_no_history": {
+        "all": {
+          "roc_auc": 0.7067002724786642,
+          "ci_low": 0.697904170958021,
+          "ci_high": 0.715599852393188,
+          "n_bootstrap": 1000
+        },
+        "no_bureau_record": {
+          "roc_auc": 0.6962238897106912,
+          "ci_low": 0.6745971736467403,
+          "ci_high": 0.7181916811232987,
+          "n_bootstrap": 1000
+        }
+      },
+      "bank_with_history": {
+        "all": {
+          "roc_auc": 0.7657447495459715,
+          "ci_low": 0.7579360814080461,
+          "ci_high": 0.7740638996944079,
+          "n_bootstrap": 1000
+        },
+        "no_bureau_record": {
+          "roc_auc": 0.7357313615109344,
+          "ci_low": 0.7157108471576005,
+          "ci_high": 0.7573718258661207,
+          "n_bootstrap": 1000
+        }
+      },
+      "client": {
+        "all": {
+          "roc_auc": 0.6188437443829065,
+          "ci_low": 0.6090660521612872,
+          "ci_high": 0.6290302359204318,
+          "n_bootstrap": 1000
+        },
+        "no_bureau_record": {
+          "roc_auc": 0.6241373826967744,
+          "ci_low": 0.603173090134013,
+          "ci_high": 0.646970608110794,
+          "n_bootstrap": 1000
+        }
+      }
+    }
+  },
+  "e6": {
+    "bank_no_history": {
+      "income_type": [
+        {
+          "group": "Commercial associate",
+          "rows": 9398,
+          "defaults": 751,
+          "default_rate": 0.07991061928069802,
+          "too_small": false,
+          "roc_auc": 0.6942004161753719,
+          "ci_low": 0.6760443948520442,
+          "ci_high": 0.7127513418309879
+        },
+        {
+          "group": "Other",
+          "rows": 3,
+          "defaults": 1,
+          "default_rate": 0.3333333333333333,
+          "too_small": true,
+          "roc_auc": 0.5,
+          "ci_low": 0.0,
+          "ci_high": 1.0
+        },
+        {
+          "group": "Pensioner",
+          "rows": 7808,
+          "defaults": 439,
+          "default_rate": 0.05622438524590164,
+          "too_small": false,
+          "roc_auc": 0.659032745377035,
+          "ci_low": 0.6324082943915652,
+          "ci_high": 0.6862166191984168
+        },
+        {
+          "group": "State servant",
+          "rows": 2917,
+          "defaults": 174,
+          "default_rate": 0.05965032567706548,
+          "too_small": false,
+          "roc_auc": 0.7181037625554704,
+          "ci_low": 0.6783507499490156,
+          "ci_high": 0.7569277893410087
+        },
+        {
+          "group": "Working",
+          "rows": 21609,
+          "defaults": 2118,
+          "default_rate": 0.09801471609051784,
+          "too_small": false,
+          "roc_auc": 0.7052652179265421,
+          "ci_low": 0.6941563607522105,
+          "ci_high": 0.7160144089224019
+        }
+      ],
+      "age": [
+        {
+          "group": "20-25",
+          "rows": 1327,
+          "defaults": 189,
+          "default_rate": 0.14242652599849284,
+          "too_small": false,
+          "roc_auc": 0.6345393849787522,
+          "ci_low": 0.595522520252107,
+          "ci_high": 0.675928427095279
+        },
+        {
+          "group": "25-35",
+          "rows": 9690,
+          "defaults": 1066,
+          "default_rate": 0.11001031991744066,
+          "too_small": false,
+          "roc_auc": 0.677763112323217,
+          "ci_low": 0.660835266394742,
+          "ci_high": 0.6930375376523853
+        },
+        {
+          "group": "35-45",
+          "rows": 11515,
+          "defaults": 1013,
+          "default_rate": 0.08797221016066001,
+          "too_small": false,
+          "roc_auc": 0.7086580415369572,
+          "ci_low": 0.6920707820150445,
+          "ci_high": 0.7242934300083786
+        },
+        {
+          "group": "45-55",
+          "rows": 9715,
+          "defaults": 694,
+          "default_rate": 0.07143592382913021,
+          "too_small": false,
+          "roc_auc": 0.7136372799043665,
+          "ci_low": 0.6934207932051908,
+          "ci_high": 0.7338244947587481
+        },
+        {
+          "group": "55-70",
+          "rows": 9488,
+          "defaults": 521,
+          "default_rate": 0.054911467116357505,
+          "too_small": false,
+          "roc_auc": 0.6708898719489054,
+          "ci_low": 0.6469102810028179,
+          "ci_high": 0.6946062782019401
+        },
+        {
+          "group": "20-35 (aggregate)",
+          "rows": 11017,
+          "defaults": 1255,
+          "default_rate": 0.11391485885449759,
+          "too_small": false,
+          "roc_auc": 0.6745473749337827,
+          "ci_low": 0.6589786519606179,
+          "ci_high": 0.6892500614892614
+        }
+      ]
+    },
+    "client": {
+      "income_type": [
+        {
+          "group": "Commercial associate",
+          "rows": 9398,
+          "defaults": 751,
+          "default_rate": 0.07991061928069802,
+          "too_small": false,
+          "roc_auc": 0.5970582841089103,
+          "ci_low": 0.5780829284960488,
+          "ci_high": 0.617445685126742
+        },
+        {
+          "group": "Other",
+          "rows": 3,
+          "defaults": 1,
+          "default_rate": 0.3333333333333333,
+          "too_small": true,
+          "roc_auc": 1.0,
+          "ci_low": 1.0,
+          "ci_high": 1.0
+        },
+        {
+          "group": "Pensioner",
+          "rows": 7808,
+          "defaults": 439,
+          "default_rate": 0.05622438524590164,
+          "too_small": false,
+          "roc_auc": 0.5695252320640151,
+          "ci_low": 0.5430538512384937,
+          "ci_high": 0.5954683048665207
+        },
+        {
+          "group": "State servant",
+          "rows": 2917,
+          "defaults": 174,
+          "default_rate": 0.05965032567706548,
+          "too_small": false,
+          "roc_auc": 0.6267447756253115,
+          "ci_low": 0.5832522237297965,
+          "ci_high": 0.6670076113761982
+        },
+        {
+          "group": "Working",
+          "rows": 21609,
+          "defaults": 2118,
+          "default_rate": 0.09801471609051784,
+          "too_small": false,
+          "roc_auc": 0.602849846826474,
+          "ci_low": 0.5901996198512814,
+          "ci_high": 0.6156344823049844
+        }
+      ],
+      "age": [
+        {
+          "group": "20-25",
+          "rows": 1327,
+          "defaults": 189,
+          "default_rate": 0.14242652599849284,
+          "too_small": false,
+          "roc_auc": 0.5166099441143378,
+          "ci_low": 0.46871671238063295,
+          "ci_high": 0.5598980602688479
+        },
+        {
+          "group": "25-35",
+          "rows": 9690,
+          "defaults": 1066,
+          "default_rate": 0.11001031991744066,
+          "too_small": false,
+          "roc_auc": 0.5816981907465357,
+          "ci_low": 0.5645365698884104,
+          "ci_high": 0.5994095197947564
+        },
+        {
+          "group": "35-45",
+          "rows": 11515,
+          "defaults": 1013,
+          "default_rate": 0.08797221016066001,
+          "too_small": false,
+          "roc_auc": 0.5932493843602018,
+          "ci_low": 0.5763596601401103,
+          "ci_high": 0.6108111990215215
+        },
+        {
+          "group": "45-55",
+          "rows": 9715,
+          "defaults": 694,
+          "default_rate": 0.07143592382913021,
+          "too_small": false,
+          "roc_auc": 0.6026694197688582,
+          "ci_low": 0.5804982759418249,
+          "ci_high": 0.6232069489902924
+        },
+        {
+          "group": "55-70",
+          "rows": 9488,
+          "defaults": 521,
+          "default_rate": 0.054911467116357505,
+          "too_small": false,
+          "roc_auc": 0.5727553599709919,
+          "ci_low": 0.54757730410082,
+          "ci_high": 0.5969568339407514
+        },
+        {
+          "group": "20-35 (aggregate)",
+          "rows": 11017,
+          "defaults": 1255,
+          "default_rate": 0.11391485885449759,
+          "too_small": false,
+          "roc_auc": 0.5773645430570281,
+          "ci_low": 0.5610212339859786,
+          "ci_high": 0.5933993492118819
+        }
+      ]
+    }
+  },
+  "e9": {
+    "bank_no_history": {
+      "CODE_GENDER": {
+        "by_group": [
+          {
+            "sensitive_feature_0": "F",
+            "acceptance_rate": 0.37390286717378585,
+            "false_negative_rate": 0.15302491103202848,
+            "false_positive_rate": 0.6089766323836545,
+            "rows": 27344.0,
+            "defaults": 1967.0
+          },
+          {
+            "sensitive_feature_0": "M",
+            "acceptance_rate": 0.28323257591550277,
+            "false_negative_rate": 0.09762532981530343,
+            "false_positive_rate": 0.6949126213592233,
+            "rows": 14391.0,
+            "defaults": 1516.0
+          }
+        ],
+        "max_gap_between_groups": {
+          "acceptance_rate": 0.09067029125828308,
+          "false_negative_rate": 0.055399581216725044,
+          "false_positive_rate": 0.08593598897556876
+        }
+      },
+      "age_group": {
+        "by_group": [
+          {
+            "sensitive_feature_0": "20-25",
+            "acceptance_rate": 0.08967596081386586,
+            "false_negative_rate": 0.010582010582010581,
+            "false_positive_rate": 0.8971880492091389,
+            "rows": 1327.0,
+            "defaults": 189.0
+          },
+          {
+            "sensitive_feature_0": "25-35",
+            "acceptance_rate": 0.1915376676986584,
+            "false_negative_rate": 0.0675422138836773,
+            "false_positive_rate": 0.7931354359925789,
+            "rows": 9690.0,
+            "defaults": 1066.0
+          },
+          {
+            "sensitive_feature_0": "35-45",
+            "acceptance_rate": 0.3164567954841511,
+            "false_negative_rate": 0.11451135241855874,
+            "false_positive_rate": 0.6640639878118454,
+            "rows": 11515.0,
+            "defaults": 1013.0
+          },
+          {
+            "sensitive_feature_0": "45-55",
+            "acceptance_rate": 0.3796191456510551,
+            "false_negative_rate": 0.15273775216138327,
+            "false_positive_rate": 0.6029265048220818,
+            "rows": 9715.0,
+            "defaults": 694.0
+          },
+          {
+            "sensitive_feature_0": "55-70",
+            "acceptance_rate": 0.5262436762225969,
+            "false_negative_rate": 0.29366602687140114,
+            "false_positive_rate": 0.4602431136388982,
+            "rows": 9488.0,
+            "defaults": 521.0
+          }
+        ],
+        "max_gap_between_groups": {
+          "acceptance_rate": 0.43656771540873107,
+          "false_negative_rate": 0.28308401628939056,
+          "false_positive_rate": 0.43694493557024067
+        }
+      }
+    },
+    "client": {
+      "CODE_GENDER": {
+        "by_group": [
+          {
+            "sensitive_feature_0": "F",
+            "acceptance_rate": 0.12302516091281451,
+            "false_negative_rate": 0.05134722928317234,
+            "false_positive_rate": 0.8714190014580132,
+            "rows": 27344.0,
+            "defaults": 1967.0
+          },
+          {
+            "sensitive_feature_0": "M",
+            "acceptance_rate": 0.08845806406782017,
+            "false_negative_rate": 0.048812664907651716,
+            "false_positive_rate": 0.906873786407767,
+            "rows": 14391.0,
+            "defaults": 1516.0
+          }
+        ],
+        "max_gap_between_groups": {
+          "acceptance_rate": 0.034567096844994344,
+          "false_negative_rate": 0.0025345643755206246,
+          "false_positive_rate": 0.03545478494975374
+        }
+      },
+      "age_group": {
+        "by_group": [
+          {
+            "sensitive_feature_0": "20-25",
+            "acceptance_rate": 0.0,
+            "false_negative_rate": 0.0,
+            "false_positive_rate": 1.0,
+            "rows": 1327.0,
+            "defaults": 189.0
+          },
+          {
+            "sensitive_feature_0": "25-35",
+            "acceptance_rate": 0.004850361197110423,
+            "false_negative_rate": 0.001876172607879925,
+            "false_positive_rate": 0.9947820037105751,
+            "rows": 9690.0,
+            "defaults": 1066.0
+          },
+          {
+            "sensitive_feature_0": "35-45",
+            "acceptance_rate": 0.05801128962223187,
+            "false_negative_rate": 0.02665350444225074,
+            "false_positive_rate": 0.938964006855837,
+            "rows": 11515.0,
+            "defaults": 1013.0
+          },
+          {
+            "sensitive_feature_0": "45-55",
+            "acceptance_rate": 0.14565105506948017,
+            "false_negative_rate": 0.08069164265129683,
+            "false_positive_rate": 0.849351513136016,
+            "rows": 9715.0,
+            "defaults": 694.0
+          },
+          {
+            "sensitive_feature_0": "55-70",
+            "acceptance_rate": 0.26422849915682967,
+            "false_negative_rate": 0.1727447216890595,
+            "false_positive_rate": 0.7304561168729787,
+            "rows": 9488.0,
+            "defaults": 521.0
+          }
+        ],
+        "max_gap_between_groups": {
+          "acceptance_rate": 0.26422849915682967,
+          "false_negative_rate": 0.1727447216890595,
+          "false_positive_rate": 0.26954388312702127
+        }
+      }
+    }
+  }
+}

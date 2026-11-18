@@ -1,0 +1,125 @@
+{
+  "name": "noria_client",
+  "role": "client",
+  "version": "1.0.0",
+  "exported_on": "2026-11-18",
+  "frozen_on": "2026-11-18",
+  "file": "artifacts/noria_client_v1.0.0.joblib",
+  "sha256": "5e0927c6db83a0f9c71ae19196554d6e26c75af24e8517bdd75b151c7ed36926",
+  "contents": "scikit-learn pipeline (preprocessing + LightGBM) wrapped with a Platt calibrator (src.calibration.CalibratedModel); predict_proba returns the calibrated probability of default",
+  "requires": {
+    "python_package": "src (this repository)",
+    "versions": {
+      "scikit-learn": "1.9.1",
+      "lightgbm": "4.7.0",
+      "pandas": "3.1.1",
+      "numpy": "2.5.4",
+      "shap": "0.54.1"
+    }
+  },
+  "features": [
+    {
+      "name": "AGE_YEARS",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "NAME_FAMILY_STATUS",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Civil marriage",
+        "Married",
+        "Separated",
+        "Single / not married",
+        "Widow"
+      ]
+    },
+    {
+      "name": "CNT_CHILDREN",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "NAME_INCOME_TYPE",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Commercial associate",
+        "Other",
+        "Pensioner",
+        "State servant",
+        "Working"
+      ]
+    },
+    {
+      "name": "EMPLOYMENT_YEARS",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "IS_PENSIONER",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "CREDIT_INCOME_RATIO",
+      "type": "continuous",
+      "missing_allowed": true
+    }
+  ],
+  "calibration": "platt",
+  "lgbm_params": {
+    "num_leaves": 33,
+    "max_depth": 3,
+    "learning_rate": 0.041962154454777856,
+    "min_child_samples": 41,
+    "subsample": 0.7496989647266433,
+    "colsample_bytree": 0.5566352507698643,
+    "reg_alpha": 4.607455324992111,
+    "reg_lambda": 0.0025197751822650253,
+    "subsample_freq": 1,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": -1,
+    "verbose": -1
+  },
+  "n_estimators": 218,
+  "classes": {
+    "thresholds": {
+      "low": 0.05,
+      "high": 0.12
+    },
+    "rule": "low if p < 0.05; medium if 0.05 <= p < 0.12; high if p >= 0.12",
+    "labels": {
+      "low": "favorable",
+      "medium": "to strengthen",
+      "high": "fragile"
+    }
+  },
+  "assumed_annual_interest_rate": 0.1,
+  "assumed_rate_use": "indicative monthly annuity shown to the client only, never in the score",
+  "metrics": {
+    "test": {
+      "roc_auc": {
+        "roc_auc": 0.6188437443829065,
+        "ci_low": 0.6090660521612872,
+        "ci_high": 0.6290302359204318,
+        "n_bootstrap": 1000
+      },
+      "pr_auc": 0.12462370598853406,
+      "brier_calibrated": 0.07544012085070491
+    },
+    "validation": {
+      "roc_auc": {
+        "roc_auc": 0.6206568487041029,
+        "ci_low": 0.6107077165152431,
+        "ci_high": 0.6306824322084041,
+        "n_bootstrap": 1000
+      },
+      "pr_auc": 0.12653782859572413,
+      "brier_calibrated": 0.07538141727345736
+    }
+  },
+  "model_card": "docs/model-card.md"
+}

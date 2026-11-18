@@ -19,7 +19,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E2 | Cost of the history (main contribution) | done (updated after E13) |
 | E3 | Client model viability | done (superseded by E10) |
 | E4 | Region features | done |
-| E5 | Real no-history profiles | done on validation (test pending) |
+| E5 | Real no-history profiles | done (validation and test) |
 | E6 | Target population | done |
 | E7 | Sensitivity to the assumed interest rate | cancelled (since E10) |
 | E8 | Calibration | done |
@@ -30,7 +30,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E13 | Hyperparameter tuning (Optuna) | done |
 | E14 | Risk classes | done |
 | E15 | Cost and effect of removing age from the client model | done |
-| E16 | Final evaluation on the test set | planned |
+| E16 | Final evaluation on the test set | done |
 
 ---
 
@@ -62,6 +62,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Result** | Validation AUC: with history **0.7663** [0.7579, 0.7742] vs without history **0.7093** [0.6993, 0.7184]. Gap with − without: **+0.0569**, paired bootstrap 95% CI [+0.0502, +0.0647] (1,000 resamples, same resamples for both models). PR-AUC 0.2592 vs 0.1947. Details: `reports/metrics/e2.json`, notebook 03 |
 | **Decision taken** | Measurement reported (no decision rule): losing the credit history costs about 0.057 AUC |
 | **Updated after E13** | With the two tuned bank models (session 4 lists, `PHONE_CHANGE_YEARS` removed): with history 0.7663 vs without history 0.7091, gap **+0.0572**, paired bootstrap 95% CI [+0.0509, +0.0644]. The original result above is unchanged. Details: `reports/metrics/e2_after_e13.json` |
+| **Final test result** | Test set (E16, frozen tuned models): with history 0.7657 vs without 0.7067, gap **+0.0590** [+0.0527, +0.0658] (validation after E13: +0.0572). Details: `reports/final/e16_test.json` |
 
 ---
 
@@ -107,9 +108,10 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Metric** | Performance on the subgroup vs overall |
 | **Decision rule (fixed in advance)** | None: this is a measurement to report |
 | **Protocol (pre-registered 18/11/2026, before running)** | Session 5 measures it on the **validation** set: validation clients whose `SK_ID_CURR` is absent from `data/raw/bureau.csv` vs all validation clients, for the bank model without history, the bank model with history and the client model (final session 4 models), AUC with 95% bootstrap CI. `bureau.csv` is only read to get its `SK_ID_CURR` list, never as a feature. **The final measurement on the test set will be made at the final-evaluation session** |
-| **Status** | done on validation (session 5, 18/11/2026); test measurement pending (final-evaluation session) |
+| **Status** | done on validation (session 5) and on the test set (E16, 18/11/2026) |
 | **Result** | Validation: 5,861 clients (14.0%) absent from `bureau.csv`, default rate 10.82% vs 7.94% for the others. AUC on this subgroup vs all validation clients: bank without history **0.7174** [0.6958, 0.7396] vs 0.7091; bank with history 0.7555 [0.7347, 0.7741] vs 0.7663; client 0.6240 [0.6001, 0.6474] vs 0.6207. The gap with − without history shrinks on these clients (≈ 0.038 vs 0.057 overall). Details: `reports/metrics/e5.json`, notebook 05 section 4 |
 | **Decision taken** | Measurement reported (no decision rule): the model without history performs at least as well on real no-history profiles. **The final measurement on the test set remains to be done at the final-evaluation session** |
+| **Final test result** | Test set (E16): 5,880 clients (14.1%) absent from `bureau.csv`, default rate 10.26% vs 8.03%. Bank without history **0.6962** [0.6746, 0.7182] vs 0.7067 overall; bank with history 0.7357 [0.7157, 0.7574] vs 0.7657; client 0.6241 [0.6032, 0.6470] vs 0.6188. On the test set the model without history is slightly below its overall AUC (inside the CI); the advantage of the history model shrinks to 0.0395 for these clients. Details: `reports/final/e16_test.json` |
 
 ---
 
@@ -126,6 +128,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (session 5, 18/11/2026) |
 | **Result** | Validation AUC [95% CI]. Bank without history (overall 0.7091): `Commercial associate` 0.6944 [0.6740, 0.7127], `Working` 0.7066, `State servant` 0.7044, `Pensioner` 0.6571; ages 20-25 0.6995, 25-35 0.7043, 35-45 0.6970, 45-55 0.6925, 55-70 0.6704, **20-35 0.7047** [0.6905, 0.7195]. Client (overall 0.6207): `Commercial associate` **0.5891** [0.5687, 0.6093], `Working` 0.6069, `State servant` 0.5687, `Pensioner` 0.5550; within each age group 0.578-0.592, **20-35 0.5921** [0.5752, 0.6091]. `Other` (6 rows) too small to conclude; every other group has ≥ 50 defaults and ≥ 50 non-defaults. Details: `reports/metrics/e6.json`, notebook 05 section 5 |
 | **Decision taken** | Measurement reported (no decision rule): the bank model stays usable for the target groups (0.69-0.71); the client model is **below 0.60** within `Commercial associate` (0.5891) and the 20-35 group (0.5921) |
+| **Final test result** | Test set (E16). Bank without history: `Commercial associate` 0.6942, `Working` 0.7053, `State servant` 0.7181, `Pensioner` 0.6590; ages 20-25 **0.6345** [0.5955, 0.6759], 25-35 0.6778, 35-45 0.7087, 45-55 0.7136, 55-70 0.6709, **20-35 0.6745** [0.6590, 0.6893]. Client: `Commercial associate` 0.5971, `Working` 0.6028; 20-25 **0.5166** [0.4687, 0.5599], 20-35 0.5774 [0.5610, 0.5934]. The young groups are weaker than on validation (documented as a limitation). Details: `reports/final/e16_test.json` |
 
 ---
 
@@ -173,6 +176,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (session 5, 18/11/2026) |
 | **Result** | Acceptance = class "low"; validation; calibrated probabilities. Bank without history by sex: acceptance F **36.73%** vs M **28.27%**, false negative rate F 15.06% vs M 10.74%, false positive rate F 61.60% vs M 69.64%. By age: acceptance 10.00% (20-25), 18.98%, 31.28%, 36.72%, **52.72% (55-70)**; false positive rate from 88.66% to 46.04%. Client by sex: acceptance F 12.69% vs M 8.91%; by age: **0.00% (20-25)**, **0.42% (25-35)**, 6.20%, 14.70%, 27.29% (55-70). Observed validation default rates: F 7.16% vs M 10.63%, 20-25 13.14% vs 55-70 5.20%. Details: `reports/metrics/e9.json`, notebook 05 section 6 |
 | **Decision taken** | Measurement reported (no decision rule): gender is not a feature, but acceptance differs by sex (8.5 points in the bank model) and strongly by age, following the observed default rates through correlated variables; young applicants are almost never "favorable" in the client model |
+| **Final test result** | Test set (E16). Bank without history: acceptance F 37.39% vs M 28.32%; by age 8.97% (20-25), 19.15%, 31.65%, 37.96%, 52.62% (55-70). Client: F 12.30% vs M 8.85%; by age 0.00%, 0.49%, 5.80%, 14.57%, 26.42%. Consistent with validation. Details: `reports/final/e16_test.json` |
 
 ---
 
@@ -188,6 +192,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (18/11/2026) |
 | **Result** | Validation AUC of LightGBM on the 7 client features without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`: **0.6189** [0.6092, 0.6291] (95% bootstrap CI, 1,000 resamples), PR-AUC 0.1258, 43 trees. For reference, E3 with the pricing signal: 0.6883. Top features (share of gain): `EMPLOYMENT_YEARS` 45.41%, `AGE_YEARS` 25.90%, `CREDIT_INCOME_RATIO` 12.55%. Details: `reports/metrics/e10.json`, notebook 03 section 6 |
 | **Decision taken** | 0.60 ≤ 0.6189 < 0.65: the client model is **kept with a stronger caution message** (rule applied as written). The E10 feature list becomes `CLIENT_FEATURES` (7 features) |
+| **Final test result** | Test set (E16): client model (7 features, tuned in E13, Platt) **0.6188** [0.6091, 0.6290], PR-AUC 0.1246 (validation 0.6207). Still between 0.60 and 0.65; the E10 decision (kept with a stronger caution message) stands |
 
 ---
 
@@ -248,6 +253,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (session 5, 18/11/2026) |
 | **Result** | Bank without history (Platt): low/accept **33.83%** of clients (actual default rate 3.25%), medium/accept with conditions **45.22%** (7.38%), high/refuse **20.94%** (18.66%). Client (Platt): favorable **11.40%** (4.50%), to strengthen **73.14%** (7.72%), fragile **15.47%** (14.16%). Details: `reports/metrics/e14.json`, notebook 05 section 2 |
 | **Decision taken** | Thresholds kept (5% / 12%). Default rates increase from low to high and no class exceeds 80% (largest: client "to strengthen", 73.14%): **no limitation triggered** by the rule |
+| **Final test result** | Test set (E16). Bank without history: accept 34.26% (actual default rate 3.14%), with conditions 44.79% (7.91%), refuse 20.94% (17.80%). Client: favorable 11.11% (3.77%), to strengthen 72.87% (7.78%), fragile 16.02% (14.09%). Default rates increase, no class above 80%: no limitation triggered. Details: `reports/final/e16_test.json` |
 
 ---
 
@@ -275,6 +281,6 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | The final models **as they are**, frozen in `reports/final/manifest.json` (SHA-256 of each file): bank without history (52 features), bank with history (65 features) and client (7 features), tuned LightGBM (E13) + Platt calibration (E8), E14 thresholds (5% / 12%). **No retraining, no tuning and no threshold change after the test set is opened.** Every measure is computed with the same code on the validation set and on the test set, and compared |
 | **Metric** | For the three models: ROC-AUC with 95% bootstrap CI, PR-AUC, Brier score (calibrated probabilities), calibration curve. **E14**: share of clients and actual default rate per class (bank without history and client). **E2**: AUC gap with − without history (paired bootstrap). **E5**: AUC on the test clients absent from `bureau.csv` vs all test clients, for the three models. **E6**: AUC by `NAME_INCOME_TYPE` and by age group (E6 bins and 20-35). **E9**: acceptance rate, false negative rate and false positive rate by `CODE_GENDER` and by age group (acceptance = class "low"). Validation vs test comparison for each figure. AUCs on raw scores, Brier and classes on calibrated probabilities, as in sessions 3-5 |
 | **Decision rule (fixed in advance)** | The test set is used **only once**. If a result is surprising or reveals a problem, it is documented as a limitation, **never corrected by modifying the models** |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (18/11/2026, test set opened once at 20:04) |
+| **Result** | Frozen models, SHA-256 checked. Test ROC-AUC [95% CI] vs validation: bank without history **0.7067** [0.6979, 0.7156] vs 0.7091; bank with history **0.7657** [0.7579, 0.7741] vs 0.7663; client **0.6188** [0.6091, 0.6290] vs 0.6207. PR-AUC 0.1879 / 0.2555 / 0.1246. Brier (calibrated) 0.07274 / 0.06934 / 0.07544 (validation 0.07251 / 0.06906 / 0.07538); mean calibrated p 0.0840 / 0.0839 / 0.0837 for an actual rate of 0.0835. E2 +0.0590 [+0.0527, +0.0658]. E5, E6, E9, E14: see their "Final test result" rows. Largest validation-test differences: young age groups (20-25 AUC −0.065 bank, −0.074 client) and the no-history subgroup (−0.021 bank). Details: `reports/final/e16_test.json`, `reports/final/validation_vs_test.csv`, notebook 07 |
+| **Decision taken** | Results reported as they are; the models are **not modified**. The weaker performance on young applicants (20-35) and the slightly lower AUC on clients without a credit-bureau record are documented as limitations. The test set is now protected (`reports/final/TEST_USED`; reloading requires `reproduce_e16=True`) |

@@ -4,6 +4,8 @@ SHAP values are computed by TreeExplainer on the model's raw output (log-odds, b
 calibration). Calibration is monotonic, so it does not change which factors push a file
 towards more or less risk; it only rescales the final probability.
 """
+import warnings
+
 import numpy as np
 import pandas as pd
 import shap
@@ -24,7 +26,9 @@ def explain(pipeline, df, features):
     X = transform(pipeline, df, features)
     model = pipeline.named_steps["model"]
     explainer = shap.TreeExplainer(model)
-    values = explainer.shap_values(X)
+    with warnings.catch_warnings():  # informational message about the output format; handled below
+        warnings.filterwarnings("ignore", message="LightGBM binary classifier with TreeExplainer")
+        values = explainer.shap_values(X)
     if isinstance(values, list):          # older SHAP: one array per class
         values = values[1]
     base = explainer.expected_value

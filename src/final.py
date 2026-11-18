@@ -173,3 +173,21 @@ def comparison_table(val_out, test_out):
                 for metric in ["acceptance_rate", "false_negative_rate", "false_positive_rate"]:
                     add(f"E9 {name} {attr}={g}: {metric}", r[metric], t_rows[g][metric])
     return pd.DataFrame(rows)
+
+
+def save_json(obj, name):
+    """Write a result dict to reports/final/<name>.json (numpy values converted)."""
+    def default(o):
+        if isinstance(o, (np.integer,)):
+            return int(o)
+        if isinstance(o, (np.floating,)):
+            return float(o)
+        if isinstance(o, (np.bool_,)):
+            return bool(o)
+        if isinstance(o, np.ndarray):
+            return o.tolist()
+        raise TypeError(type(o))
+    FINAL_DIR.mkdir(parents=True, exist_ok=True)
+    path = FINAL_DIR / f"{name}.json"
+    path.write_text(json.dumps(obj, indent=2, default=default) + "\n", encoding="utf-8")
+    return path

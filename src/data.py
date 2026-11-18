@@ -125,15 +125,25 @@ def save_splits(train, val, test, out_dir=config.PROCESSED_DIR):
     return paths
 
 
+TEST_USED_FILE = config.ROOT / "reports" / "final" / "TEST_USED"
+
+
 class TestSetLockedError(RuntimeError):
     """Raised when the test set is requested without final=True."""
 
 
-def load_split(name, final=False, in_dir=config.PROCESSED_DIR):
+class TestSetAlreadyUsedError(RuntimeError):
+    """Raised when the test set is requested again after the final evaluation (E16)."""
+
+
+def load_split(name, final=False, reproduce_e16=False, in_dir=config.PROCESSED_DIR):
     """Read one split ("train", "val" or "test") from data/processed/.
 
     The test set is locked: it is used only once, for the final results
     (docs/experiments.md). Loading it requires final=True explicitly.
+    Once the final evaluation has been run (reports/final/TEST_USED exists), loading
+    it again also requires reproduce_e16=True, which is reserved for reproducing E16
+    exactly as it was run (same frozen models, same code) and never for any new analysis.
     """
     if name not in ("train", "val", "test"):
         raise ValueError(f"unknown split: {name!r}")
@@ -141,7 +151,19 @@ def load_split(name, final=False, in_dir=config.PROCESSED_DIR):
         raise TestSetLockedError(
             "The test set is locked until the final evaluation. "
             "Use load_split('test', final=True) only for the final results.")
+    if name == "test" and TEST_USED_FILE.exists() and not reproduce_e16:
+        raise TestSetAlreadyUsedError(
+            f"The test set was already used for the final evaluation ({TEST_USED_FILE.read_text().strip()}). "
+            "Pass reproduce_e16=True only to reproduce E16 as it was run.")
     return pd.read_parquet(in_dir / f"{name}.parquet")
+
+
+def mark_test_used(note="E16 final evaluation"):
+    """Record that the test set has been used (reports/final/TEST_USED, with the date)."""
+    from datetime import datetime
+    TEST_USED_FILE.parent.mkdir(parents=True, exist_ok=True)
+    TEST_USED_FILE.write_text(f"{datetime.now().isoformat(timespec='seconds')} · {note}\n", encoding="utf-8")
+    return TEST_USED_FILE
 
 
 def load_train_val(in_dir=config.PROCESSED_DIR):

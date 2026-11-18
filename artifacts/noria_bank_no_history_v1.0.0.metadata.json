@@ -1,0 +1,452 @@
+{
+  "name": "noria_bank_no_history",
+  "role": "bank",
+  "version": "1.0.0",
+  "exported_on": "2026-11-18",
+  "frozen_on": "2026-11-18",
+  "file": "artifacts/noria_bank_no_history_v1.0.0.joblib",
+  "sha256": "11bd49f07978fb677009fba4578306a2479c6792d68e0e46cfa6319a5a8ec532",
+  "contents": "scikit-learn pipeline (preprocessing + LightGBM) wrapped with a Platt calibrator (src.calibration.CalibratedModel); predict_proba returns the calibrated probability of default",
+  "requires": {
+    "python_package": "src (this repository)",
+    "versions": {
+      "scikit-learn": "1.9.1",
+      "lightgbm": "4.7.0",
+      "pandas": "3.1.1",
+      "numpy": "2.5.4",
+      "shap": "0.54.1"
+    }
+  },
+  "features": [
+    {
+      "name": "NAME_TYPE_SUITE",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Children",
+        "Family",
+        "Other",
+        "Other_A",
+        "Other_B",
+        "Spouse, partner",
+        "Unaccompanied"
+      ]
+    },
+    {
+      "name": "NAME_INCOME_TYPE",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Commercial associate",
+        "Other",
+        "Pensioner",
+        "State servant",
+        "Working"
+      ]
+    },
+    {
+      "name": "NAME_EDUCATION_TYPE",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Higher education",
+        "Incomplete higher",
+        "Lower secondary",
+        "Other",
+        "Secondary / secondary special"
+      ]
+    },
+    {
+      "name": "NAME_FAMILY_STATUS",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Civil marriage",
+        "Married",
+        "Separated",
+        "Single / not married",
+        "Widow"
+      ]
+    },
+    {
+      "name": "NAME_HOUSING_TYPE",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Co-op apartment",
+        "House / apartment",
+        "Municipal apartment",
+        "Office apartment",
+        "Rented apartment",
+        "With parents"
+      ]
+    },
+    {
+      "name": "OCCUPATION_TYPE",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Accountants",
+        "Cleaning staff",
+        "Cooking staff",
+        "Core staff",
+        "Drivers",
+        "HR staff",
+        "High skill tech staff",
+        "IT staff",
+        "Laborers",
+        "Low-skill Laborers",
+        "Managers",
+        "Medicine staff",
+        "Missing",
+        "Private service staff",
+        "Realty agents",
+        "Sales staff",
+        "Secretaries",
+        "Security staff",
+        "Waiters/barmen staff"
+      ]
+    },
+    {
+      "name": "ORGANIZATION_TYPE",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "Advertising",
+        "Agriculture",
+        "Bank",
+        "Business Entity Type 1",
+        "Business Entity Type 2",
+        "Business Entity Type 3",
+        "Construction",
+        "Culture",
+        "Electricity",
+        "Emergency",
+        "Government",
+        "Hotel",
+        "Housing",
+        "Industry: type 1",
+        "Industry: type 11",
+        "Industry: type 12",
+        "Industry: type 2",
+        "Industry: type 3",
+        "Industry: type 4",
+        "Industry: type 5",
+        "Industry: type 7",
+        "Industry: type 9",
+        "Insurance",
+        "Kindergarten",
+        "Medicine",
+        "Military",
+        "Other",
+        "Police",
+        "Postal",
+        "Realtor",
+        "Restaurant",
+        "School",
+        "Security",
+        "Security Ministries",
+        "Self-employed",
+        "Services",
+        "Telecom",
+        "Trade: type 1",
+        "Trade: type 2",
+        "Trade: type 3",
+        "Trade: type 6",
+        "Trade: type 7",
+        "Transport: type 2",
+        "Transport: type 3",
+        "Transport: type 4",
+        "University",
+        "XNA"
+      ]
+    },
+    {
+      "name": "FLAG_OWN_CAR",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "FLAG_OWN_REALTY",
+      "type": "categorical",
+      "missing_allowed": true,
+      "categories": [
+        "N",
+        "Y"
+      ]
+    },
+    {
+      "name": "CNT_CHILDREN",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "CNT_FAM_MEMBERS",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "OWN_CAR_AGE",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "AGE_YEARS",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "EMPLOYMENT_YEARS",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "REGISTRATION_YEARS",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "ID_PUBLISH_YEARS",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "IS_PENSIONER",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "CREDIT_INCOME_RATIO",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "ANNUITY_INCOME_RATIO",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "CREDIT_TERM",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "GOODS_CREDIT_RATIO",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "EMPLOYMENT_AGE_RATIO",
+      "type": "continuous",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_MOBIL",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_EMP_PHONE",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_WORK_PHONE",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_CONT_MOBILE",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_PHONE",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_EMAIL",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "REG_REGION_NOT_LIVE_REGION",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "REG_REGION_NOT_WORK_REGION",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "LIVE_REGION_NOT_WORK_REGION",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "REG_CITY_NOT_LIVE_CITY",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "REG_CITY_NOT_WORK_CITY",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "LIVE_CITY_NOT_WORK_CITY",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_2",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_3",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_4",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_5",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_6",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_8",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_9",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_11",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_12",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_13",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_14",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_15",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_16",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_17",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_18",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_19",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_20",
+      "type": "binary",
+      "missing_allowed": true
+    },
+    {
+      "name": "FLAG_DOCUMENT_21",
+      "type": "binary",
+      "missing_allowed": true
+    }
+  ],
+  "calibration": "platt",
+  "lgbm_params": {
+    "num_leaves": 52,
+    "max_depth": 11,
+    "learning_rate": 0.025930784973929148,
+    "min_child_samples": 426,
+    "subsample": 0.912243396848878,
+    "colsample_bytree": 0.3391247887552,
+    "reg_alpha": 0.028289117241886055,
+    "reg_lambda": 0.047398070717650266,
+    "subsample_freq": 1,
+    "class_weight": "balanced",
+    "random_state": 42,
+    "n_jobs": -1,
+    "verbose": -1
+  },
+  "n_estimators": 392,
+  "classes": {
+    "thresholds": {
+      "low": 0.05,
+      "high": 0.12
+    },
+    "rule": "low if p < 0.05; medium if 0.05 <= p < 0.12; high if p >= 0.12",
+    "labels": {
+      "low": "accept",
+      "medium": "accept with conditions",
+      "high": "refuse"
+    }
+  },
+  "assumed_annual_interest_rate": null,
+  "assumed_rate_use": null,
+  "metrics": {
+    "test": {
+      "roc_auc": {
+        "roc_auc": 0.7067002724786642,
+        "ci_low": 0.697904170958021,
+        "ci_high": 0.715599852393188,
+        "n_bootstrap": 1000
+      },
+      "pr_auc": 0.1878792642058184,
+      "brier_calibrated": 0.07273558488378355
+    },
+    "validation": {
+      "roc_auc": {
+        "roc_auc": 0.709106418774941,
+        "ci_low": 0.6990055909024223,
+        "ci_high": 0.7177178774422915,
+        "n_bootstrap": 1000
+      },
+      "pr_auc": 0.1933219237201053,
+      "brier_calibrated": 0.07250986502155742
+    }
+  },
+  "model_card": "docs/model-card.md"
+}
