@@ -16,15 +16,15 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 |---|---|---|
 | E1 | Baseline: logistic regression vs LightGBM | done |
 | E2 | Cost of the history (main contribution) | done |
-| E3 | Client model viability | done |
+| E3 | Client model viability | done (superseded by E10) |
 | E4 | Region features | planned |
 | E5 | Real no-history profiles | planned |
 | E6 | Target population | planned |
 | E7 | Sensitivity to the assumed interest rate | planned |
 | E8 | Calibration | planned |
 | E9 (bonus) | Fairness audit | planned |
-| E10 | Client model without the pricing signal | planned |
-| E11 | Weight of the pricing signal in the bank model | planned |
+| E10 | Client model without the pricing signal | done |
+| E11 | Weight of the pricing signal in the bank model | done |
 
 ---
 
@@ -70,6 +70,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (session 3, 18/11/2026) |
 | **Result** | Validation AUC of the LightGBM client model: **0.6883** [0.6780, 0.6979], PR-AUC 0.1708. Logistic regression (indicative): 0.6181. Note: `CREDIT_TERM` carries 50.07% of the gain and most likely encodes Home Credit's risk-based pricing, which the public form (assumed interest rate) cannot reproduce; this AUC is therefore probably optimistic for real use (notebook 03, section 5.1). Details: `reports/metrics/e3.json` |
 | **Decision taken** | ≥ 0.65: the client model is **kept** (rule applied as written) |
+| **Note** | **Superseded by E10** (pre-registered 18/11/2026): E10, not E3, decides the fate of the client model |
 
 ---
 
@@ -172,9 +173,9 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | LightGBM on `CLIENT_FEATURES` without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`. Both contain Home Credit's risk-based pricing (the annuity includes the interest rate set for the applicant), which is absent from the public form, where the annuity is computed with a fixed assumed rate. Same protocol as E1-E3 |
 | **Metric** | AUC-ROC on the validation set (95% bootstrap CI) |
 | **Decision rule (fixed in advance)** | Identical to E3: ≥ 0.65 → kept; between 0.60 and 0.65 → kept with a stronger caution message; < 0.60 → dropped. **E10, not E3, decides the fate of the client model**, and if the model is kept, the E10 feature list becomes `CLIENT_FEATURES` |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (18/11/2026) |
+| **Result** | Validation AUC of LightGBM on the 7 client features without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`: **0.6189** [0.6092, 0.6291] (95% bootstrap CI, 1,000 resamples), PR-AUC 0.1258, 43 trees. For reference, E3 with the pricing signal: 0.6883. Top features (share of gain): `EMPLOYMENT_YEARS` 45.41%, `AGE_YEARS` 25.90%, `CREDIT_INCOME_RATIO` 12.55%. Details: `reports/metrics/e10.json`, notebook 03 section 6 |
+| **Decision taken** | 0.60 ≤ 0.6189 < 0.65: the client model is **kept with a stronger caution message** (rule applied as written). The E10 feature list becomes `CLIENT_FEATURES` (7 features) |
 
 ---
 
@@ -187,6 +188,6 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Comparison** | LightGBM on `BANK_NO_HISTORY_FEATURES` with vs without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`. Same protocol as E1-E3 |
 | **Metric** | AUC difference, paired bootstrap 95% CI |
 | **Decision rule (fixed in advance)** | None: this is a measurement to report |
-| **Status** | planned |
-| **Result** | |
-| **Decision taken** | |
+| **Status** | done (18/11/2026) |
+| **Result** | Validation AUC of LightGBM bank without history: with `CREDIT_TERM` and `ANNUITY_INCOME_RATIO` **0.7093** [0.6993, 0.7184] vs without **0.6795** [0.6700, 0.6883]. Difference with − without: **+0.0298**, paired bootstrap 95% CI [+0.0249, +0.0349] (1,000 resamples). PR-AUC 0.1947 vs 0.1690. Details: `reports/metrics/e11.json`, notebook 03 section 6 |
+| **Decision taken** | Measurement reported (no decision rule): the pricing signal is worth about 0.030 AUC in the bank model without history |

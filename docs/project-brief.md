@@ -2,7 +2,7 @@
 
 > **Assessing and explaining the credit risk of profiles with no banking history.**
 > Web + AI project · Bachelor's degree in computer science (SALEAM-IA), NIT · Racha CHABANE · Due end of December 2026
-> Last updated: 18 November 2026 (after the baseline models, session 3)
+> Last updated: 18 November 2026 (after the pricing-signal experiments E10 and E11)
 
 ---
 
@@ -72,12 +72,12 @@ Three feature sets, defined in `src/config.py`:
 | | **Client (public)** | **Bank without history** | **Bank with history** |
 |---|---|---|---|
 | **Role** | Quick estimate on declared, unverified data | Accurate score on verified data, without history | Reference: measure what the history adds |
-| **Variables** | Age, family status, children, employment type, employment length, pensioner, credit / income, duration, annuity / income | All relevant variables (ratios and variables without a monetary unit, including goods price / credit), **except** `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, `*_CNT_SOCIAL_CIRCLE` and their missing-value indicators. The Home Credit region ratings (`REGION_FEATURES`) are left out by default (section 7) | Bank without history + `EXT_SOURCE_*` + `AMT_REQ_CREDIT_BUREAU_*` + `*_CNT_SOCIAL_CIRCLE` |
-| **Output** | Category favorable / to strengthen / fragile, strengths and points to strengthen | Calibrated probability of default, risk class low / medium / high, recommendation accept / with conditions / refuse | Used for the comparison |
+| **Variables** | Age, family status, children, employment type, employment length, pensioner, credit / income (since E10: no duration, no annuity / income, which carried Home Credit's pricing) | All relevant variables (ratios and variables without a monetary unit, including goods price / credit), **except** `EXT_SOURCE_*`, `AMT_REQ_CREDIT_BUREAU_*`, `*_CNT_SOCIAL_CIRCLE` and their missing-value indicators. The Home Credit region ratings (`REGION_FEATURES`) are left out by default (section 7) | Bank without history + `EXT_SOURCE_*` + `AMT_REQ_CREDIT_BUREAU_*` + `*_CNT_SOCIAL_CIRCLE` |
+| **Output** | Category favorable / to strengthen / fragile, strengths and points to strengthen, with a **stronger caution message** (E10: validation AUC 0.6189, between 0.60 and 0.65) | Calibrated probability of default, risk class low / medium / high, recommendation accept / with conditions / refuse | Used for the comparison |
 
 **Algorithms:** LightGBM (main model), compared with a baseline logistic regression that must be beaten (confirmed in E1: 0.7093 vs 0.6698 validation AUC). Bonus: XGBoost and CatBoost for a comparison table.
 
-**Training:** class weighting (`class_weight="balanced"`), number of trees chosen by early stopping in a 5-fold stratified cross-validation **on the train set**, then refit on the whole train set; `random_state = 42` everywhere (`src/train.py`). Hyperparameter tuning: not done yet (session 3 uses reasonable defaults). Trained models are saved in `models/` (not versioned); metrics are saved as JSON in `reports/metrics/` (versioned).
+**Training:** class weighting (`class_weight="balanced"`), number of trees chosen by early stopping in a 5-fold stratified cross-validation **on the train set**, then refit on the whole train set; `random_state = 42` everywhere (`src/train.py`). Hyperparameter tuning: not done yet (session 3 uses reasonable defaults); it is scheduled for the next session, after E10, on the final feature lists. Trained models are saved in `models/` (not versioned); metrics are saved as JSON in `reports/metrics/` (versioned).
 
 **Calibration:** isotonic or Platt, so that a displayed probability of 20% corresponds to about 20% actual defaults (choice: experiment E8 in [experiments.md](experiments.md)).
 
@@ -85,7 +85,7 @@ Three feature sets, defined in `src/config.py`:
 
 **Client model constraint:** each variable must be computable from the form inputs alone.
 - **Income unit (assumption deduced from the data):** the dataset does not state the unit of `AMT_INCOME_TOTAL` and `AMT_ANNUITY`. They are read as **monthly** amounts in the same unit, the only coherent reading: in 91.1% of rows the annuity is larger than income ÷ 12, so an annual income is ruled out, while the monthly reading gives a realistic median debt-to-income ratio (17.2%) and a `CREDIT_TERM` in months (median 20.7). The form's monthly income is used as is, with no conversion.
-- **Annuity and duration:** in the dataset the annuity includes interest. For the public client form only, the API computes the monthly annuity from the amount and the duration with the standard amortization formula and an assumed annual interest rate (10% by default, constant `ASSUMED_ANNUAL_INTEREST_RATE` in `src/config.py`), then computes the ratios exactly as in the dataset (credit ÷ annuity, annuity ÷ income, credit ÷ income).
+- **Annuity and duration:** in the dataset the annuity includes interest. For the public client form only, the API computes the monthly annuity from the amount and the duration with the standard amortization formula and an assumed annual interest rate (10% by default, constant `ASSUMED_ANNUAL_INTEREST_RATE` in `src/config.py`), then computes the ratios exactly as in the dataset (credit ÷ annuity, annuity ÷ income, credit ÷ income). **Since E10, the client features no longer use the annuity or the duration** (`CREDIT_TERM` and `ANNUITY_INCOME_RATIO` removed): only credit ÷ income remains. What to do with the duration field and the assumed rate is an open question.
 - **Sensitivity to the assumed rate:** experiment E7 in [experiments.md](experiments.md).
 
 ---
@@ -174,7 +174,8 @@ The ratios are computed by the API exactly as in the dataset: total financed amo
 - **The data is not Algerian.** Noria is a proof of concept: the method (ratios, double model, explainability, fairness) is transferable, but real-world use would require retraining on local data.
 - **The target population is under-represented.** The dataset has no freelancer or self-employed category (only 10 "Businessman"), and 51.6% of applicants are employees. Predictions for profiles like Amine are therefore less reliable.
 - **The model without history is less accurate**, since it loses the most predictive variables. This gap is measured and is a result of the project, not a hidden flaw (E2: −0.057 AUC).
-- **`CREDIT_TERM` reflects Home Credit's pricing.** It is the top feature of the client and bank models (50% and 28% of the gain). Annuities follow a grid of 806 annuity / credit ratios whose default rates differ widely, so the variable most likely carries the lender's risk-based pricing. The public form computes it with an assumed interest rate, without that signal: the client model's validation AUC (0.6883) is probably optimistic for real use.
+- **`CREDIT_TERM` reflects Home Credit's pricing.** It was the top feature of the client and bank models (50% and 28% of the gain). Annuities follow a grid of 806 annuity / credit ratios whose default rates differ widely, so the variable most likely carries the lender's risk-based pricing. The public form cannot reproduce it, so the client model was re-evaluated without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO` (E10): its validation AUC drops from 0.6883 to **0.6189**. In the bank model without history, these two variables are worth +0.0298 AUC (E11: 0.7093 vs 0.6795).
+- **The client model is weak** (validation AUC 0.6189, close to the 0.60 threshold): it is shown with a stronger caution message, and it rests mostly on employment length, age and credit ÷ income.
 
 ---
 
@@ -213,3 +214,7 @@ The ratios are computed by the API exactly as in the dataset: total financed amo
 | 18/11/2026 | Trained models saved in `models/` (not versioned), metrics saved as JSON in `reports/metrics/` (versioned) | Models are regenerated by the notebooks; metrics must stay traceable |
 | 18/11/2026 | E1: LightGBM confirmed as the main model | Validation AUC 0.7093 vs 0.6698 for the logistic regression (rule in [experiments.md](experiments.md)) |
 | 18/11/2026 | E3: client model kept | Validation AUC 0.6883 ≥ 0.65 (rule applied as written); caveat on `CREDIT_TERM` added to the limitations |
+| 18/11/2026 | E10 and E11 pre-registered (commit "Pre-register E10 and E11") before being run; **E10, not E3, decides the fate of the client model** (E3 marked "Superseded by E10", result and rule unchanged) | Session 3 showed that `CREDIT_TERM` and `ANNUITY_INCOME_RATIO` carry Home Credit's risk-based pricing, absent from the public form: E3 measured the client model with a signal it will not have |
+| 18/11/2026 | E10: client model **kept with a stronger caution message**; `CLIENT_FEATURES` reduced to 7 features (without `CREDIT_TERM` and `ANNUITY_INCOME_RATIO`); the E3 list is kept as `CLIENT_FEATURES_E3` for reproducibility | Validation AUC 0.6189 [0.6092, 0.6291], between 0.60 and 0.65 (rule applied as written) |
+| 18/11/2026 | E11 reported: the pricing signal is worth +0.0298 AUC [+0.0249, +0.0349] in the bank model without history | Measurement to report (no decision rule); the bank feature lists are unchanged |
+| 18/11/2026 | Hyperparameter tuning scheduled for the next session, after E10, on the final feature lists | Tuning on feature lists that could still change would be wasted |

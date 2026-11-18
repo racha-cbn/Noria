@@ -1,0 +1,21 @@
+{
+  "experiment": "E10",
+  "features": [
+    "AGE_YEARS",
+    "NAME_FAMILY_STATUS",
+    "CNT_CHILDREN",
+    "NAME_INCOME_TYPE",
+    "EMPLOYMENT_YEARS",
+    "IS_PENSIONER",
+    "CREDIT_INCOME_RATIO"
+  ],
+  "client_no_pricing_auc": 0.6189375658870895,
+  "ci": [
+    0.6092205899336938,
+    0.6291462729269647
+  ],
+  "pr_auc": 0.12581069224331645,
+  "client_e3_auc_for_reference": 0.6882678295609432,
+  "rule": ">= 0.65 kept; 0.60-0.65 kept with a stronger caution message; < 0.60 dropped (same as E3)",
+  "decision": "kept with a stronger caution message"
+}

@@ -46,6 +46,7 @@ MISSING_LABEL = "Missing"
 # Assumed annual interest rate used by the API to turn (amount, duration) into a
 # monthly annuity with the standard amortization formula, so that the client ratios
 # are computed exactly as in the dataset (where the annuity includes interest).
+# Since E10 the client features no longer use the annuity or the duration (see project-brief.md).
 # Sensitivity at 5%, 10% and 15%: experiment E7 in docs/experiments.md.
 ASSUMED_ANNUAL_INTEREST_RATE = 0.10
 
@@ -60,9 +61,27 @@ YEARS_FROM_DAYS = {
 
 # --- Feature sets ------------------------------------------------------------
 
-# Client model: only what the public form can produce.
-# Form inputs: age, family status, number of children, employment type,
-# employment length, income, requested amount, duration (months).
+# Variables carrying Home Credit's risk-based pricing (the annuity includes the interest
+# rate set for the applicant). The public form computes the annuity with a fixed assumed
+# rate, so this signal does not exist there (experiments E10 and E11).
+PRICING_FEATURES = ["CREDIT_TERM", "ANNUITY_INCOME_RATIO"]
+
+# Client feature list as evaluated in E3, before E10 (kept for reproducibility of notebook 03).
+CLIENT_FEATURES_E3 = [
+    "AGE_YEARS",
+    "NAME_FAMILY_STATUS",
+    "CNT_CHILDREN",
+    "NAME_INCOME_TYPE",
+    "EMPLOYMENT_YEARS",
+    "IS_PENSIONER",
+    "CREDIT_INCOME_RATIO",
+    "CREDIT_TERM",
+    "ANNUITY_INCOME_RATIO",
+]
+
+# Client model: only what the public form can produce, without the pricing signal.
+# Since E10 (validation AUC 0.6189, "kept with a stronger caution message"), this is the
+# E3 list minus PRICING_FEATURES. No raw amounts: ratios only, to stay currency-independent.
 CLIENT_FEATURES = [
     "AGE_YEARS",             # form: age
     "NAME_FAMILY_STATUS",    # form: family status
@@ -71,14 +90,10 @@ CLIENT_FEATURES = [
     "EMPLOYMENT_YEARS",      # form: employment length (missing when IS_PENSIONER = 1)
     "IS_PENSIONER",          # form: employment type "retired" (see CLIENT_FORM_FORMULAS)
     "CREDIT_INCOME_RATIO",   # form: amount / income
-    "CREDIT_TERM",           # form: amount / annuity (annuity from the amortization formula)
-    "ANNUITY_INCOME_RATIO",  # form: annuity / monthly income
 ]
-# No raw amounts in the client model: ratios only, to stay currency-independent.
 
 # How each client feature is computed from the form inputs (documentation for the API).
 # income = monthly income from the form (same unit as AMT_INCOME_TOTAL, see "Units" above).
-# annuity = amount * r / (1 - (1 + r) ** -duration), with r = ASSUMED_ANNUAL_INTEREST_RATE / 12.
 # Employment type "unemployed": no score is computed (too few examples, see project-brief.md).
 CLIENT_FORM_FORMULAS = {
     "AGE_YEARS": "age",
@@ -88,8 +103,6 @@ CLIENT_FORM_FORMULAS = {
     "EMPLOYMENT_YEARS": "employment_length (NaN when IS_PENSIONER = 1)",
     "IS_PENSIONER": "1 if employment_type is retired, else 0",
     "CREDIT_INCOME_RATIO": "amount / income",
-    "CREDIT_TERM": "amount / annuity (amortization formula, assumed interest rate)",
-    "ANNUITY_INCOME_RATIO": "annuity / income",
 }
 
 # Bank model without history: every relevant variable except the hidden history.

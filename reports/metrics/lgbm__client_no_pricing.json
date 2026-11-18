@@ -1,0 +1,50 @@
+{
+  "roc_auc": 0.6189375658870895,
+  "ci_low": 0.6092205899336938,
+  "ci_high": 0.6291462729269647,
+  "n_bootstrap": 1000,
+  "pr_auc": 0.12581069224331645,
+  "rows": 41735,
+  "positives": 3483,
+  "positive_rate": 0.08345513358092728,
+  "feature_set": "client_no_pricing",
+  "train_auc": 0.6355694181523135,
+  "train_minus_val_auc": 0.016631852265224012,
+  "training": {
+    "model_type": "lgbm",
+    "n_features": 7,
+    "train_rows": 194762,
+    "n_estimators": 43,
+    "cv_folds": [
+      {
+        "fold": 1,
+        "best_iteration": 31,
+        "fold_auc": 0.6146373072730744
+      },
+      {
+        "fold": 2,
+        "best_iteration": 12,
+        "fold_auc": 0.627894575247881
+      },
+      {
+        "fold": 3,
+        "best_iteration": 27,
+        "fold_auc": 0.6167489895290571
+      },
+      {
+        "fold": 4,
+        "best_iteration": 71,
+        "fold_auc": 0.6231370453690656
+      },
+      {
+        "fold": 5,
+        "best_iteration": 76,
+        "fold_auc": 0.6125674198356387
+      }
+    ],
+    "cv_mean_auc": 0.6189970674509434,
+    "train_auc": 0.6355694181523135
+  },
+  "top_feature": "EMPLOYMENT_YEARS",
+  "top_feature_gain_share": 0.45411908116892263
+}
