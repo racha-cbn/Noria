@@ -25,6 +25,8 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E9 (bonus) | Fairness audit | planned |
 | E10 | Client model without the pricing signal | done |
 | E11 | Weight of the pricing signal in the bank model | done |
+| E12 | New features | planned |
+| E13 | Hyperparameter tuning (Optuna) | planned |
 
 ---
 
@@ -191,3 +193,33 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (18/11/2026) |
 | **Result** | Validation AUC of LightGBM bank without history: with `CREDIT_TERM` and `ANNUITY_INCOME_RATIO` **0.7093** [0.6993, 0.7184] vs without **0.6795** [0.6700, 0.6883]. Difference with − without: **+0.0298**, paired bootstrap 95% CI [+0.0249, +0.0349] (1,000 resamples). PR-AUC 0.1947 vs 0.1690. Details: `reports/metrics/e11.json`, notebook 03 section 6 |
 | **Decision taken** | Measurement reported (no decision rule): the pricing signal is worth about 0.030 AUC in the bank model without history |
+
+---
+
+## E12 — New features
+
+| Field | Content |
+|---|---|
+| **ID** | E12 |
+| **Question** | Do new deterministic features improve the three models? |
+| **Comparison** | LightGBM with vs without the new features, for `BANK_NO_HISTORY_FEATURES`, `BANK_WITH_HISTORY_FEATURES` and `CLIENT_FEATURES`. Candidates (deterministic, no raw amount, no history, no regional rating, verifiable by an advisor): `DOC_COUNT` (sum of the `FLAG_DOCUMENT_*`), `CONTACT_COUNT` (sum of the contact flags: `FLAG_MOBIL`, `FLAG_EMP_PHONE`, `FLAG_WORK_PHONE`, `FLAG_CONT_MOBILE`, `FLAG_PHONE`, `FLAG_EMAIL`), `AGE_AT_EMPLOYMENT_START` (`AGE_YEARS` − `EMPLOYMENT_YEARS`), `CHILDREN_RATIO` (`CNT_CHILDREN` / `CNT_FAM_MEMBERS`), `ID_PUBLISH_AGE_RATIO` and `REGISTRATION_AGE_RATIO` (`ID_PUBLISH_YEARS` and `REGISTRATION_YEARS` divided by `AGE_YEARS`). Bank lists: all six candidates. Client list: only the candidates computable from the public form, i.e. `AGE_AT_EMPLOYMENT_START` (age and employment length are in the form) and `CHILDREN_RATIO` (the family size is deducible from the form: `CNT_FAM_MEMBERS` = 1 + spouse (`Married` or `Civil marriage`) + `CNT_CHILDREN` on 100% of train rows, checked before this registration). The reference models "without new features" are re-measured with the lists corrected by the session 4 preliminary decision (`PHONE_CHANGE_YEARS` removed). Same protocol as E1-E3 (default LightGBM parameters, early stopping in a 5-fold stratified CV on train) |
+| **Metric** | Mean 5-fold CV AUC on train, and validation AUC difference with − without (paired bootstrap 95% CI, 1,000 resamples) |
+| **Decision rule (fixed in advance)** | For each list, the new features are kept if the mean 5-fold CV AUC on train increases **and** the lower bound of the paired bootstrap CI on validation is > 0. Otherwise they are dropped for that list |
+| **Status** | planned |
+| **Result** | |
+| **Decision taken** | |
+
+---
+
+## E13 — Hyperparameter tuning (Optuna)
+
+| Field | Content |
+|---|---|
+| **ID** | E13 |
+| **Question** | Does tuning the LightGBM hyperparameters improve the three models? |
+| **Comparison** | For each final list from E12: tuned parameters vs default parameters (`LGBM_PARAMS` in `src/train.py`). Optuna, TPE sampler with a fixed seed (42), 50 trials per list. Objective: mean AUC of a 5-fold stratified CV on the **train** set (never the validation set), early stopping kept. Search space: `num_leaves` 15-255 (log), `max_depth` 3-12, `learning_rate` 0.02-0.2 (log), `min_child_samples` 20-500 (log), `subsample` 0.5-1.0, `colsample_bytree` 0.3-1.0, `reg_alpha` 0.001-10 (log), `reg_lambda` 0.001-10 (log); `class_weight="balanced"` and `subsample_freq=1` fixed. The number of trees of the final model comes from the CV early stopping, as in E1-E3 |
+| **Metric** | Validation AUC (95% bootstrap CI) of the tuned vs default model, per list |
+| **Decision rule (fixed in advance)** | The tuned parameters are kept if their validation AUC is ≥ that of the default parameters; otherwise the default parameters are kept. Then E2 is re-measured with the two tuned bank models (paired bootstrap) and the updated gap is reported in E2, without overwriting E2's original result |
+| **Status** | planned |
+| **Result** | |
+| **Decision taken** | |

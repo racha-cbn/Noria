@@ -164,9 +164,15 @@ _DOCUMENT_FLAGS = [
     if i not in (7, 10)  # FLAG_DOCUMENT_7 and _10 are constant (all 0) among cash loans
 ]
 
-BANK_NO_HISTORY_FEATURES = (
+# Columns an Algerian advisor cannot verify: never in a feature set.
+# DAYS_LAST_PHONE_CHANGE would require the phone operator's data (decision of session 4).
+NON_TRANSFERABLE_COLUMNS = ["DAYS_LAST_PHONE_CHANGE", "PHONE_CHANGE_YEARS"]
+
+# Bank list as evaluated in E1, E2, E4-E11 of session 3 (kept for reproducibility of notebook 03).
+BANK_NO_HISTORY_FEATURES_S3 = (
     _BANK_CATEGORICAL + _BANK_NUMERIC + _CREATED + _CONTACT_AND_ADDRESS_FLAGS + _DOCUMENT_FLAGS
 )
+BANK_NO_HISTORY_FEATURES = [f for f in BANK_NO_HISTORY_FEATURES_S3 if f not in NON_TRANSFERABLE_COLUMNS]
 
 # Excluded from every bank feature set (one-line reason each):
 EXCLUDED_COLUMNS = {
@@ -178,7 +184,8 @@ EXCLUDED_COLUMNS = {
     "DAYS_EMPLOYED": "replaced by EMPLOYMENT_YEARS and IS_PENSIONER",
     "DAYS_REGISTRATION": "replaced by REGISTRATION_YEARS",
     "DAYS_ID_PUBLISH": "replaced by ID_PUBLISH_YEARS",
-    "DAYS_LAST_PHONE_CHANGE": "replaced by PHONE_CHANGE_YEARS",
+    "DAYS_LAST_PHONE_CHANGE": "not verifiable by an Algerian advisor (phone operator data), see NON_TRANSFERABLE_COLUMNS",
+    "PHONE_CHANGE_YEARS": "not verifiable by an Algerian advisor (phone operator data), see NON_TRANSFERABLE_COLUMNS",
     "WEEKDAY_APPR_PROCESS_START": "describes when the file was entered, not the applicant",
     "HOUR_APPR_PROCESS_START": "describes when the file was entered, not the applicant",
     "FLAG_DOCUMENT_7": "constant (all 0) among cash loans",
@@ -218,6 +225,7 @@ MONETARY_COLUMNS = ["AMT_INCOME_TOTAL", "AMT_CREDIT", "AMT_ANNUITY", "AMT_GOODS_
 
 # Bank model with history: reference model, to measure what the history adds.
 BANK_WITH_HISTORY_FEATURES = BANK_NO_HISTORY_FEATURES + HISTORY_FEATURES
+BANK_WITH_HISTORY_FEATURES_S3 = BANK_NO_HISTORY_FEATURES_S3 + HISTORY_FEATURES  # as in session 3
 
 FEATURE_SETS = {
     "client": CLIENT_FEATURES,

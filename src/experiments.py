@@ -17,12 +17,14 @@ DOMINANT_FEATURE_SHARE = 0.50    # one feature above this share of the total gai
 OVERFIT_GAP_WARNING = 0.05       # train AUC - validation AUC above this: flag overfitting
 
 # Feature lists used by the experiments (the E3 client list is frozen for reproducibility).
+# Session 3 lists are frozen (before the session 4 removal of PHONE_CHANGE_YEARS) so that
+# notebook 03 reproduces the recorded results of E1-E3, E10 and E11.
 SETS = {
     "client": config.CLIENT_FEATURES_E3,
-    "bank_no_history": config.BANK_NO_HISTORY_FEATURES,
-    "bank_with_history": config.BANK_WITH_HISTORY_FEATURES,
+    "bank_no_history": config.BANK_NO_HISTORY_FEATURES_S3,
+    "bank_with_history": config.BANK_WITH_HISTORY_FEATURES_S3,
     "client_no_pricing": [f for f in config.CLIENT_FEATURES_E3 if f not in config.PRICING_FEATURES],
-    "bank_no_history_no_pricing": [f for f in config.BANK_NO_HISTORY_FEATURES
+    "bank_no_history_no_pricing": [f for f in config.BANK_NO_HISTORY_FEATURES_S3
                                    if f not in config.PRICING_FEATURES],
 }
 
