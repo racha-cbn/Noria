@@ -30,6 +30,7 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | E13 | Hyperparameter tuning (Optuna) | done |
 | E14 | Risk classes | done |
 | E15 | Cost and effect of removing age from the client model | done |
+| E16 | Final evaluation on the test set | planned |
 
 ---
 
@@ -262,3 +263,18 @@ Reference: [project-brief.md](project-brief.md) (choices and decision log).
 | **Status** | done (18/11/2026) |
 | **Result** | Overall validation AUC with age **0.6207** [0.6107, 0.6307] vs without age **0.6141** [0.6039, 0.6243]; paired difference with − without **+0.0065** [+0.0035, +0.0097]. 20-35 year-olds: 0.5921 vs 0.5903, +0.0018 [−0.0032, +0.0070]; `Commercial associate`: 0.5891 vs 0.5818, +0.0073 [−0.0031, +0.0171]. Categories (favorable / to strengthen / fragile), with vs without age: 20-25 0.00 / 40.29 / 59.71% vs 0.00 / 55.77 / 44.23%; 25-35 0.42 / 61.74 / 37.84% vs 1.30 / 74.27 / 24.43%; 55-70 27.29 / 72.71 / 0.00% vs 20.01 / 77.69 / 2.30%. Overall: 11.40 / 73.14 / 15.47% vs 9.86 / 75.46 / 14.67%, actual default rates per class nearly identical. Details: `reports/metrics/e15.json`, notebook 06 |
 | **Decision taken** | Measurement reported (no decision rule). Removing age would cost 0.0065 AUC and would **not** make young applicants "favorable" (20-25: 0.00% either way), since employment length carries most of the age gradient. `CLIENT_FEATURES` unchanged (age kept, decision taken beforehand) |
+
+---
+
+## E16 — Final evaluation on the test set
+
+| Field | Content |
+|---|---|
+| **ID** | E16 |
+| **Question** | How do the final models perform on data never used before (the test set)? |
+| **Comparison** | The final models **as they are**, frozen in `reports/final/manifest.json` (SHA-256 of each file): bank without history (52 features), bank with history (65 features) and client (7 features), tuned LightGBM (E13) + Platt calibration (E8), E14 thresholds (5% / 12%). **No retraining, no tuning and no threshold change after the test set is opened.** Every measure is computed with the same code on the validation set and on the test set, and compared |
+| **Metric** | For the three models: ROC-AUC with 95% bootstrap CI, PR-AUC, Brier score (calibrated probabilities), calibration curve. **E14**: share of clients and actual default rate per class (bank without history and client). **E2**: AUC gap with − without history (paired bootstrap). **E5**: AUC on the test clients absent from `bureau.csv` vs all test clients, for the three models. **E6**: AUC by `NAME_INCOME_TYPE` and by age group (E6 bins and 20-35). **E9**: acceptance rate, false negative rate and false positive rate by `CODE_GENDER` and by age group (acceptance = class "low"). Validation vs test comparison for each figure. AUCs on raw scores, Brier and classes on calibrated probabilities, as in sessions 3-5 |
+| **Decision rule (fixed in advance)** | The test set is used **only once**. If a result is surprising or reveals a problem, it is documented as a limitation, **never corrected by modifying the models** |
+| **Status** | planned |
+| **Result** | |
+| **Decision taken** | |
